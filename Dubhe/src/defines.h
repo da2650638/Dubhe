@@ -49,32 +49,32 @@ STATIC_ASSERT(sizeof(b8)==1, "Expected b8 to be 1 bytes.");
 
 // Platform detection
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
-#define KPLATFORM_WINDOWS 1
+#define DPLATFORM_WINDOWS 1
 #ifndef _WIN64
 #error "64 bit is require on Windows!"
 #endif
 #elif defined(__linux__) || defined(__gnu_linux__)
 // Linux OS
-#define KPLATFORM_LINUX 1
+#define DPLATFORM_LINUX 1
 #if defined(__ANDROID__)
-#define KPLATFORM_ANDROID 1
+#define DPLATFORM_ANDROID 1
 #endif
 #elif defined(__unix__)
 // Catch anything not caught by the above.
-#define KPLATFORM_UNIX 1
+#define DPLATFORM_UNIX 1
 #elif defined(_POSIX_VERSION)
 // Posix
-#define KPLATFORM_POSIX 1
+#define DPLATFORM_POSIX 1
 #elif __APPLE__
 // Apple platforms
-#define KPLATFORM_APPLE 1
+#define DPLATFORM_APPLE 1
 #include <TargetConditionals.h>
 #if TARGET_IPHONE_SIMULATOR
 // iOS Simulator
-#define KPLATFORM_IOS 1
-#define KPLATFORM_IOS_SIMULATOR 1
+#define DPLATFORM_IOS 1
+#define DPLATFORM_IOS_SIMULATOR 1
 #elif TARGET_OS_IPHONE
-#define KPLATFORM_IOS 1
+#define DPLATFORM_IOS 1
 // iOS device
 #elif TARGET_OS_MAC
 // Other kinds of Mac OS
@@ -85,18 +85,18 @@ STATIC_ASSERT(sizeof(b8)==1, "Expected b8 to be 1 bytes.");
 #error "Unknown platform!"
 #endif
 
-#ifdef KEXPORT
+#ifdef DEXPORT
 // Exports
 #ifdef _MSC_VER
-#define KAPI __declspec(dllexport)
+#define DAPI __declspec(dllexport)
 #else
-#define KAPI __attribute__((visibility("default")))
+#define DAPI __attribute__((visibility("default")))
 #endif
 #else
 // Imports
 #ifdef _MSC_VER
-#define KAPI __declspec(dllimport)
+#define DAPI __declspec(dllimport)
 #else
-#define KAPI
+#define DAPI
 #endif
 #endif

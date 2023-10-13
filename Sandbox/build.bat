@@ -15,15 +15,13 @@ SET compilerFlags=-g
 REM -Wall -Werror
 SET includeFlags=-Isrc -I../Dubhe/src/
 SET linkerFlags=-L../bin/ -lDubhe.lib
-SET defines=-D_DEBUG -DKIMPORT
+SET defines=-D_DEBUG -DDIMPORT
 
 ECHO "Preparing environments..."
 set binDirs=../bin
 if not exist "%binDirs%" (
     mkdir "%binDirs%"
     echo "Created directory ../bin"
-) else (
-    echo "The directory ../bin is already exist"
 )
 
 ECHO "Building %assembly%..."
