@@ -4,6 +4,9 @@
         "string.h": "c",
         "stdio.h": "c",
         "asserts.h": "c",
-        "platform.h": "c"
+        "platform.h": "c",
+        "application.h": "c",
+        "iosfwd": "c",
+        "app_types.h": "c"
     }
 }
