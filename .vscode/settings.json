@@ -3,6 +3,7 @@
         "logger.h": "c",
         "string.h": "c",
         "stdio.h": "c",
-        "asserts.h": "c"
+        "asserts.h": "c",
+        "platform.h": "c"
     }
 }
