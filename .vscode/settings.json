@@ -7,6 +7,8 @@
         "platform.h": "c",
         "application.h": "c",
         "iosfwd": "c",
-        "app_types.h": "c"
+        "app_types.h": "c",
+        "entrypoint.h": "c",
+        "dmemory.h": "c"
     }
 }

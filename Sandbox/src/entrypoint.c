@@ -1,10 +1,8 @@
 #include <core/logger.h>
 #include <core/asserts.h>
 #include <core/application.h>
+#include <core/dmemory.h>
 #include <entrypoint.h>
-
-// TODO: remove this include 
-#include <platform/platform.h>
 
 #include "app.h"
 
@@ -21,7 +19,7 @@ b8 create_app(app* out_app)
     out_app->render = app_render;
     out_app->on_resize = app_on_resize;
 
-    out_app->state = platform_allocate(sizeof(app_state), FALSE);
+    out_app->state = dallocate(sizeof(app_state), MEMORY_TAG_GAME);
 
     return TRUE;
 }

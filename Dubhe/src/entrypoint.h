@@ -2,6 +2,7 @@
 
 #include "core/application.h"
 #include "core/logger.h"
+#include "core/dmemory.h"
 #include "app_types.h"
 
 // Externally-defined function to create a app
@@ -12,6 +13,7 @@ extern b8 create_app(app* out_app);
  */
 int main(void)
 {
+    initialize_memory();
     // Request the app instance from the application
     app app_instance;
     if(!create_app(&app_instance))
@@ -38,6 +40,6 @@ int main(void)
     {
         DINFO("Application did not shutdown gracefully.");
     }
-
+    shutdown_memory();
     return 0;
 }

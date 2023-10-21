@@ -1,8 +1,12 @@
 #include "application.h"
 #include "platform/platform.h"
-#include "logger.h"
+#include "core/logger.h"
 #include "app_types.h"
+#include "core/dmemory.h"
 
+/*
+ * 
+ */
 typedef struct application_state{
     app* app_instance;
     b8 is_running;
@@ -69,6 +73,8 @@ b8 application_create(app* app_instance)
 
 b8 application_run()
 {
+    DINFO(get_memory_usage_str());
+
     // the application is going to continuously be in this function for the rest of its life until the user actually choose to quit  
     while(app_state.is_running)
     {
