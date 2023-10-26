@@ -9,6 +9,14 @@
         "iosfwd": "c",
         "app_types.h": "c",
         "entrypoint.h": "c",
-        "dmemory.h": "c"
+        "dmemory.h": "c",
+        "algorithm": "c",
+        "xutility": "c",
+        "optional": "c",
+        "type_traits": "c",
+        "xtr1common": "c",
+        "utility": "c",
+        "vector": "c",
+        "xstring": "c"
     }
 }

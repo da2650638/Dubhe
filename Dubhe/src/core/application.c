@@ -3,6 +3,7 @@
 #include "core/logger.h"
 #include "app_types.h"
 #include "core/dmemory.h"
+#include "core/event.h"
 
 /*
  * 
@@ -18,7 +19,7 @@ typedef struct application_state{
 }application_state;
 
 static b8 initialized = FALSE;
-static application_state app_state;
+static application_state applicaton_state;
 
 b8 application_create(app* app_instance)
 {
@@ -28,9 +29,9 @@ b8 application_create(app* app_instance)
         return FALSE;
     }
 
-    app_state.app_instance = app_instance;
+    applicaton_state.app_instance = app_instance;
 
-    // Initialize subsystem
+    // Initialize subsystems
     // Initialize log subsystem
     initialize_logging();
     
@@ -42,11 +43,17 @@ b8 application_create(app* app_instance)
     DDEBUG("A test message: %.3f", 3.14);
     DTRACE("A test message: %.3f", 3.14);
 
-    app_state.is_running = TRUE;
-    app_state.is_suspended = FALSE;
+    applicaton_state.is_running = TRUE;
+    applicaton_state.is_suspended = FALSE;
+
+    // Initialize event subsystem
+    if(!event_initialize()) {
+        DERROR("Event system failed initialization. Application cannot continue.");
+        return FALSE;
+    }
 
     if(!platform_startup(
-        &app_state.platform, 
+        &applicaton_state.platform, 
         app_instance->app_config.name, 
         app_instance->app_config.start_pos_x, 
         app_instance->app_config.start_pos_y, 
@@ -57,13 +64,13 @@ b8 application_create(app* app_instance)
     }
 
     // Initialize the app
-    if (!app_state.app_instance->initialize(app_state.app_instance))
+    if (!applicaton_state.app_instance->initialize(applicaton_state.app_instance))
     {
         DFATAL("App failed to initialize.");
         return FALSE;
     }
     // NOTE: ???
-    app_state.app_instance->on_resize(app_state.app_instance, app_state.width, app_state.height);
+    applicaton_state.app_instance->on_resize(applicaton_state.app_instance, applicaton_state.width, applicaton_state.height);
 
     // TODO: this function gonna grow quite a lot as the application does.
 
@@ -76,34 +83,36 @@ b8 application_run()
     DINFO(get_memory_usage_str());
 
     // the application is going to continuously be in this function for the rest of its life until the user actually choose to quit  
-    while(app_state.is_running)
+    while(applicaton_state.is_running)
     {
-        if(!platform_pump_message(&app_state.platform))  // Just like GLFW glfwPollEvents(&window);
+        if(!platform_pump_message(&applicaton_state.platform))  // Just like GLFW glfwPollEvents(&window);
         {
-            app_state.is_running = FALSE;
+            applicaton_state.is_running = FALSE;
         }
 
-        if(!app_state.is_suspended)
+        if(!applicaton_state.is_suspended)
         {
-            if(!app_state.app_instance->update(app_state.app_instance, (f32)0))
+            if(!applicaton_state.app_instance->update(applicaton_state.app_instance, (f32)0))
             {
                 DFATAL("App update failed, shutting down...");
-                app_state.is_running = FALSE;
+                applicaton_state.is_running = FALSE;
                 break;
             }
 
-            if (!app_state.app_instance->render(app_state.app_instance, (f32)0))
+            if (!applicaton_state.app_instance->render(applicaton_state.app_instance, (f32)0))
             {
                 DFATAL("App render failed, shutting down...");
-                app_state.is_running = FALSE;
+                applicaton_state.is_running = FALSE;
                 break;
             }
         }
     }
 
-    app_state.is_running = FALSE;
+    applicaton_state.is_running = FALSE;
 
-    platform_shutdown(&app_state.platform);
+    event_shutdown();
+
+    platform_shutdown(&applicaton_state.platform);
 
     return TRUE;
 }

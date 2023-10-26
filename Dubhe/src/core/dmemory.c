@@ -26,11 +26,11 @@ static const char* memory_tag_strings[MEMORY_TAG_MAX_TAGS] = {
     "MAT_INST   ",
     "RENDERER   ",
     "GAME       ",
+    "APP        ",
     "TRANSFORM  ",
     "ENTITY     ",
     "ENTITY_NODE",
-    "SCENE      "
-};
+    "SCENE      "};
 
 static struct memory_stats stats;
 
@@ -66,7 +66,7 @@ void dfree(void* block, u64 size, memory_tag tag)
         DWARN("dallocate called using MEMORY_TAG_UNKNOWN. Re-calss this allocation.");
     }
 
-        stats.total_allocated -= size;
+    stats.total_allocated -= size;
     stats.tagged_allocations[tag] -= size;
 
     // TODO: memory alignment
