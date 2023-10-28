@@ -117,7 +117,7 @@ b8 event_fire(u16 code, void* sender, event_context data)
         return FALSE;
     }
     u64 registered_count = darray_length(event_state.registered_events[code].events);
-        for(u64 i = 0; i < registered_count; i++)
+    for(u64 i = 0; i < registered_count; i++)
     {
         registered_event e = event_state.registered_events->events[i];
         if(e.callback(code, sender, e.listener, data))

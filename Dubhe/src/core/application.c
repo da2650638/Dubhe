@@ -4,6 +4,7 @@
 #include "app_types.h"
 #include "core/dmemory.h"
 #include "core/event.h"
+#include "core/input.h"
 
 /*
  * 
@@ -12,7 +13,7 @@ typedef struct application_state{
     app* app_instance;
     b8 is_running;
     b8 is_suspended;
-    platform_state platform;
+    platform_state platform_state;
     i16 width;
     i16 height;
     f64 last_time;
@@ -34,18 +35,12 @@ b8 application_create(app* app_instance)
     // Initialize subsystems
     // Initialize log subsystem
     initialize_logging();
-    
-    // TODO: remove those
-    DFATAL("A test message: %.3f", 3.14);
-    DERROR("A test message: %.3f", 3.14);
-    DWARN("A test message: %.3f", 3.14);
-    DINFO("A test message: %.3f", 3.14);
-    DDEBUG("A test message: %.3f", 3.14);
-    DTRACE("A test message: %.3f", 3.14);
 
     applicaton_state.is_running = TRUE;
     applicaton_state.is_suspended = FALSE;
 
+    // Initialize input subsystem
+    input_initialize();
     // Initialize event subsystem
     if(!event_initialize()) {
         DERROR("Event system failed initialization. Application cannot continue.");
@@ -53,7 +48,7 @@ b8 application_create(app* app_instance)
     }
 
     if(!platform_startup(
-        &applicaton_state.platform, 
+        &applicaton_state.platform_state, 
         app_instance->app_config.name, 
         app_instance->app_config.start_pos_x, 
         app_instance->app_config.start_pos_y, 
@@ -85,7 +80,7 @@ b8 application_run()
     // the application is going to continuously be in this function for the rest of its life until the user actually choose to quit  
     while(applicaton_state.is_running)
     {
-        if(!platform_pump_message(&applicaton_state.platform))  // Just like GLFW glfwPollEvents(&window);
+        if(!platform_pump_message(&applicaton_state.platform_state))  // Just like GLFW glfwPollEvents(&window);
         {
             applicaton_state.is_running = FALSE;
         }
@@ -111,8 +106,9 @@ b8 application_run()
     applicaton_state.is_running = FALSE;
 
     event_shutdown();
+    input_shutdown();
 
-    platform_shutdown(&applicaton_state.platform);
+    platform_shutdown(&applicaton_state.platform_state);
 
     return TRUE;
 }

@@ -17,6 +17,7 @@
         "xtr1common": "c",
         "utility": "c",
         "vector": "c",
-        "xstring": "c"
+        "xstring": "c",
+        "input.h": "c"
     }
 }
