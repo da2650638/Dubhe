@@ -18,6 +18,7 @@
         "utility": "c",
         "vector": "c",
         "xstring": "c",
-        "input.h": "c"
+        "input.h": "c",
+        "event.h": "c"
     }
 }

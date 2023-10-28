@@ -4,6 +4,7 @@
 #if DPLATFORM_WINDOWS
 
 #include <core/logger.h>
+#include "core/input.h"
 
 #include <windows.h>
 #include <windowsx.h> // param input extraction
@@ -248,8 +249,10 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
         case WM_SYSKEYUP:
         {
             // // key pressed/released
-            // b8 pressed = (msg == WM_KEYDOWN) || (msg == WM_SYSKEYDOWN);
-            // // TODO: input processing
+            b8 pressed = (msg == WM_KEYDOWN) || (msg == WM_SYSKEYDOWN);
+            key_code key = (u16)w_param;
+
+            input_process_key(key, pressed);
             break;
         }
         case WM_MOUSEMOVE:

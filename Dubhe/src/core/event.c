@@ -40,8 +40,11 @@ void event_shutdown()
 {
     for(u16 i = 0; i < MAX_EVENT_CODES; i++)
     {
-        darray_destroy((void*)(event_state.registered_events[i].events));
-        event_state.registered_events[i].events = 0;
+        if(event_state.registered_events[i].events != 0)
+        {
+            darray_destroy((void*)(event_state.registered_events[i].events));
+            event_state.registered_events[i].events = 0;
+        }
     }
 }
 
@@ -119,7 +122,7 @@ b8 event_fire(u16 code, void* sender, event_context data)
     u64 registered_count = darray_length(event_state.registered_events[code].events);
     for(u64 i = 0; i < registered_count; i++)
     {
-        registered_event e = event_state.registered_events->events[i];
+        registered_event e = event_state.registered_events[code].events[i];
         if(e.callback(code, sender, e.listener, data))
         {
             // NOTE: 这个返回基本上不影响事件处理流程
