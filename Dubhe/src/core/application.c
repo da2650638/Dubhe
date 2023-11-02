@@ -5,6 +5,8 @@
 #include "core/dmemory.h"
 #include "core/event.h"
 #include "core/input.h"
+#include "core/clock.h"
+#include "renderer/renderer_frontend.h"
 
 /*
  * 
@@ -16,11 +18,12 @@ typedef struct application_state{
     platform_state platform_state;
     i16 width;
     i16 height;
+    clock clock;
     f64 last_time;
 }application_state;
 
 static b8 initialized = FALSE;
-static application_state applicaton_state;
+static application_state app_state;
 
 b8 application_on_evnet(u16 code, void* sender, void* listener, event_context data);
 b8 application_on_key(u16 code, void* sender, void* listener, event_context data);
@@ -33,14 +36,14 @@ b8 application_create(app* app_instance)
         return FALSE;
     }
 
-    applicaton_state.app_instance = app_instance;
+    app_state.app_instance = app_instance;
 
     // Initialize subsystems
     // Initialize log subsystem
     initialize_logging();
 
-    applicaton_state.is_running = TRUE;
-    applicaton_state.is_suspended = FALSE;
+    app_state.is_running = TRUE;
+    app_state.is_suspended = FALSE;
 
     // Initialize input subsystem
     input_initialize();
@@ -55,7 +58,7 @@ b8 application_create(app* app_instance)
     event_register(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
 
     if(!platform_startup(
-        &applicaton_state.platform_state, 
+        &app_state.platform_state, 
         app_instance->app_config.name, 
         app_instance->app_config.start_pos_x, 
         app_instance->app_config.start_pos_y, 
@@ -65,14 +68,21 @@ b8 application_create(app* app_instance)
         return FALSE;
     }
 
+    // 平台初始化之后，app初始化之前初始化renderer
+    if(!renderer_initialize(app_instance->app_config.name, &app_state.platform_state))
+    {
+        DFATAL("Failed to initialize renderer. Aborting application.");
+        return FALSE;
+    }
+
     // Initialize the app
-    if (!applicaton_state.app_instance->initialize(applicaton_state.app_instance))
+    if (!app_state.app_instance->initialize(app_state.app_instance))
     {
         DFATAL("App failed to initialize.");
         return FALSE;
     }
     // NOTE: ???
-    applicaton_state.app_instance->on_resize(applicaton_state.app_instance, applicaton_state.width, applicaton_state.height);
+    app_state.app_instance->on_resize(app_state.app_instance, app_state.width, app_state.height);
 
     // TODO: this function gonna grow quite a lot as the application does.
 
@@ -83,34 +93,71 @@ b8 application_create(app* app_instance)
 b8 application_run()
 {
     DINFO(get_memory_usage_str());
+    clock_start(&app_state.clock);
+    clock_update(&app_state.clock);
+    app_state.last_time = app_state.clock.elapsed;
+    f64 running_time = 0.0;
+    u8 frame_count = 0;
+    f64 target_frame_seconds = 1.0f / 60.0;
 
     // the application is going to continuously be in this function for the rest of its life until the user actually choose to quit  
-    while(applicaton_state.is_running)
+    while(app_state.is_running)
     {
-        if(!platform_pump_message(&applicaton_state.platform_state))  // Just like GLFW glfwPollEvents(&window);
+        if(!platform_pump_message(&app_state.platform_state))  // Just like GLFW glfwPollEvents(&window);
         {
-            applicaton_state.is_running = FALSE;
+            app_state.is_running = FALSE;
         }
 
-        if(!applicaton_state.is_suspended)
+        if(!app_state.is_suspended)
         {
-            if(!applicaton_state.app_instance->update(applicaton_state.app_instance, (f32)0))
+            clock_update(&app_state.clock);
+            f64 current_time = app_state.clock.elapsed;
+            f64 delta_time = current_time - app_state.last_time;
+            f64 frame_start_time = platform_get_absolute_time();
+
+            if(!app_state.app_instance->update(app_state.app_instance, (f32)delta_time))
             {
                 DFATAL("App update failed, shutting down...");
-                applicaton_state.is_running = FALSE;
+                app_state.is_running = FALSE;
                 break;
             }
 
-            if (!applicaton_state.app_instance->render(applicaton_state.app_instance, (f32)0))
+            if (!app_state.app_instance->render(app_state.app_instance, (f32)delta_time))
             {
                 DFATAL("App render failed, shutting down...");
-                applicaton_state.is_running = FALSE;
+                app_state.is_running = FALSE;
                 break;
             }
+
+            f64 frame_end_time = platform_get_absolute_time();
+            f64 frame_elapsed_time = frame_end_time - frame_start_time;
+            running_time += frame_elapsed_time;
+            f64 frame_remaining_time = target_frame_seconds - frame_elapsed_time;
+            if(frame_remaining_time > 0.0)
+            {
+                u64 remaining_ms = (u64)frame_remaining_time * 1000;
+                // If there is time left, give it back to the OS.
+                b8 limit_frames = FALSE;
+                if(remaining_ms > 0 && limit_frames)
+                {
+                    platform_sleep(remaining_ms);
+                }
+
+                frame_count++;
+            }
+
+            // NOTE: Input update/state copying should always be handled
+            // after any input should be recorded; I.E. before this line.
+            // As a safety, input is the last thing to be updated before
+            // this frame ends.
+            input_update(delta_time);
+
+            // Update last time
+            app_state.last_time = current_time;
         }
     }
 
-    applicaton_state.is_running = FALSE;
+    app_state.is_running = FALSE;
 
     // Unregister the event
     event_unregister(EVENT_CODE_APPLICATION_QUIT, 0, application_on_evnet);
@@ -119,7 +166,7 @@ b8 application_run()
     event_shutdown();
     input_shutdown();
 
-    platform_shutdown(&applicaton_state.platform_state);
+    platform_shutdown(&app_state.platform_state);
 
     return TRUE;
 }
@@ -131,7 +178,7 @@ b8 application_on_evnet(u16 code, void* sender, void* listener, event_context da
         case EVENT_CODE_APPLICATION_QUIT:
         {
             DINFO("EVENT_CODE_APPLICATION_QUIT recieved, shutting down.\n");
-            applicaton_state.is_running = FALSE;
+            app_state.is_running = FALSE;
             return TRUE;
         }
     }

@@ -19,6 +19,12 @@
         "vector": "c",
         "xstring": "c",
         "input.h": "c",
-        "event.h": "c"
+        "event.h": "c",
+        "clock.h": "c",
+        "renderer_backend.h": "c",
+        "renderer_types.inl": "c",
+        "vulkan_backend.h": "c",
+        "vulkan_types.inl": "c",
+        "tuple": "c"
     }
 }

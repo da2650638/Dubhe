@@ -1,2 +1,2 @@
 # Dubhe
-Build a game engine from scratch using vulkan and C.
+Build a app engine from scratch using vulkan and C.
