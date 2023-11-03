@@ -25,6 +25,11 @@
         "renderer_types.inl": "c",
         "vulkan_backend.h": "c",
         "vulkan_types.inl": "c",
-        "tuple": "c"
+        "tuple": "c",
+        "dstring.h": "c",
+        "compare": "c",
+        "xmemory": "c",
+        "vulkan.h": "c",
+        "defines.h": "c"
     }
 }

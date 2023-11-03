@@ -6,6 +6,8 @@
 #include <core/logger.h>
 #include "core/input.h"
 
+#include "containers/darray.h"
+
 #include <windows.h>
 #include <windowsx.h> // param input extraction
 #include <stdlib.h>
@@ -116,6 +118,7 @@ b8 platform_startup(
     ShowWindow(internal_state->hwnd, show_window_command_flags);
 
     // Clock setup
+    // get clock frequency and setup the starttime
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
     clock_frequency = 1.0 / (f64)frequency.QuadPart;
@@ -212,6 +215,11 @@ f64 platform_get_absolute_time()
 void platform_sleep(u64 ms)
 {
     Sleep(ms);
+}
+
+void platform_get_required_extension_names(const char*** names_darray)
+{
+    darray_push(*names_darray, &"VK_KHR_win32_surface");
 }
 
 LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param)
