@@ -7,6 +7,7 @@
 #include "platform/platform.h"
 #include "containers/darray.h"
 #include "vulkan_platform.h"
+#include "vulkan_device.h"
 
 static vulkan_context context;
 
@@ -62,6 +63,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     u32 available_layer_count = 0;
     VK_CHECK(vkEnumerateInstanceLayerProperties(&available_layer_count, 0));
     VkLayerProperties* available_layer_properties = darray_reserve(VkLayerProperties, available_layer_count);
+    // NOTE: 这么操作其实并没有把darray available_layer_properties的length属性改变。
     VK_CHECK(vkEnumerateInstanceLayerProperties(&available_layer_count, available_layer_properties));
 
     // Verify all layers are available
@@ -111,6 +113,26 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     DDEBUG("Vulkan debugger created.");
 #endif
 
+    // Create surface
+    DDEBUG("Creating vulkan surface...");
+
+
+    // Create vulkan physical device
+    DDEBUG("Creating vulkan surface...");
+    if (!platform_create_vulkan_surface(plat_state, &context)) {
+        DERROR("Failed to create platform surface!");
+        return FALSE;
+    }
+    DDEBUG("Vulkan surface created.");
+
+    // Device creation
+    DDEBUG("Creating vulkan device...");
+    if (!vulkan_device_create(&context)) {
+        DERROR("Failed to create device!");
+        return FALSE;
+    }
+    DDEBUG("Vulkan device created...");
+
     DINFO("Vulkan renderer backend initialized successfully.");
     return TRUE;
 }
@@ -118,6 +140,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
 void vulkan_renderer_backend_shutdown(renderer_backend* backend)
 {
 #if defined(_DEBUG)
+    // NOTE: (2)Destroying vulkan debugger
     DINFO("Destroying vulkan debugger...");
     if(context.debug_messenger)
     {
@@ -126,6 +149,7 @@ void vulkan_renderer_backend_shutdown(renderer_backend* backend)
     }
     DINFO("Done.");
 #endif
+    // NOTE: (1)Destroying vulkan instance
     DINFO("Destroying vulkan instance...");
     vkDestroyInstance(context.instance, context.allocator);
     DINFO("Done.");

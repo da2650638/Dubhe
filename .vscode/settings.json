@@ -30,6 +30,32 @@
         "compare": "c",
         "xmemory": "c",
         "vulkan.h": "c",
-        "defines.h": "c"
-    }
+        "defines.h": "c",
+        "vulkan_device.h": "c",
+        "vulkan_platform.h": "c",
+        "darray.h": "c",
+        "windows.h": "c",
+        "windowsx.h": "c",
+        "stdlib.h": "c"
+    },
+    "todohighlight.isEnable": true,
+    "todohighlight.keywords": [
+        {
+            "text": "HACK:",
+            "color": "#ff6600",
+            "backgroundColor": "green"
+        },
+        {
+            "text": "NOTE:",
+            "color": "green",
+            "backgroundColor": "lightblue"
+        }
+    ],
+    "todohighlight.defaultStyle": {
+        "color": "red",
+        "backgroundColor": "#ffab00",
+        "overviewRulerColor": "rgba(0,0,0,0)",
+        "isWholeLine": false,
+    },
+    
 }
