@@ -43,6 +43,10 @@ typedef struct vulkan_device {
     VkPhysicalDeviceProperties properties;
     VkPhysicalDeviceFeatures features;
     VkPhysicalDeviceMemoryProperties memory;
+
+    VkQueue graphics_queue;
+    VkQueue present_queue;
+    VkQueue transfer_queue;
 }vulkan_device;
 
 // TODO: this structure grow rapidly through out the development

@@ -113,11 +113,8 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     DDEBUG("Vulkan debugger created.");
 #endif
 
-    // Create surface
-    DDEBUG("Creating vulkan surface...");
-
-
-    // Create vulkan physical device
+    // NOTE: (3)Create surface
+    // FIXME: destroy surface after vulkan_device_destroy
     DDEBUG("Creating vulkan surface...");
     if (!platform_create_vulkan_surface(plat_state, &context)) {
         DERROR("Failed to create platform surface!");
@@ -125,7 +122,8 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     }
     DDEBUG("Vulkan surface created.");
 
-    // Device creation
+
+    // NOTE: (4)Create device
     DDEBUG("Creating vulkan device...");
     if (!vulkan_device_create(&context)) {
         DERROR("Failed to create device!");
@@ -139,6 +137,12 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
 
 void vulkan_renderer_backend_shutdown(renderer_backend* backend)
 {
+    // NOTE: (4)Destroying vulkan device
+    vulkan_device_destroy(&context);
+
+    // NOTE: (3)Destroying vulkan surface;
+    //platform_destroy_vulkan_surface(plat_state, &context);
+
 #if defined(_DEBUG)
     // NOTE: (2)Destroying vulkan debugger
     DINFO("Destroying vulkan debugger...");

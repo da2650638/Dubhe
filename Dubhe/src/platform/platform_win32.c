@@ -251,6 +251,15 @@ b8 platform_create_vulkan_surface(struct platform_state* plat_state, struct vulk
     return TRUE;
 }
 
+// void platform_destroy_vulkan_surface(struct platform_state* plat_state, struct vulkan_context* context)
+// {
+//     windows_app_internal_state* state = (windows_app_internal_state*)plat_state->internal_state;
+//     VkSurfaceKHR surface = state->surface;
+
+//     DINFO("Destroy vulkan surface");
+//     vkDestroySurfaceKHR(context->instance, surface, context->allocator);
+// }
+
 LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param)
 {
     switch (msg)
