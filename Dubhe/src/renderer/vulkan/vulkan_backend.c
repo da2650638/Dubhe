@@ -137,11 +137,18 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
 
 void vulkan_renderer_backend_shutdown(renderer_backend* backend)
 {
+    // Destroy in the opposite order of the creation
     // NOTE: (4)Destroying vulkan device
+    DDEBUG("Destroying vulkan device...");
     vulkan_device_destroy(&context);
 
     // NOTE: (3)Destroying vulkan surface;
-    //platform_destroy_vulkan_surface(plat_state, &context);
+    DDEBUG("Destroying vulkan surface...");
+    if(context.surface)
+    {
+        vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
+        context.surface = 0;
+    }
 
 #if defined(_DEBUG)
     // NOTE: (2)Destroying vulkan debugger

@@ -49,8 +49,19 @@ typedef struct vulkan_device {
     VkQueue transfer_queue;
 }vulkan_device;
 
+typedef struct vulkan_swapchain {
+    VkSurfaceFormatKHR image_format;
+    u8 max_frames_in_flight;
+    VkSwapchainKHR handle;
+    u8 image_count;
+    VkImage* images;
+    VkImageView* views;
+} vulkan_swapchain;
+
 // TODO: this structure grow rapidly through out the development
 typedef struct vulkan_context{
+    u32 framebuffer_width;
+    u32 framebuffer_height;    
     VkInstance instance;
     VkAllocationCallbacks* allocator;
     VkSurfaceKHR surface;

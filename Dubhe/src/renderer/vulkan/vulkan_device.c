@@ -377,10 +377,11 @@ b8 vulkan_device_create(vulkan_context* context)
         queue_create_infos[i] = temp_create_info;
         queue_create_infos[i].queueFamilyIndex = indices[i];
         queue_create_infos[i].queueCount = 1;
-        if(indices[i] == context->device.graphics_queue_index)
-        {
-            queue_create_infos[i].queueCount = 2;
-        }
+        // Enable this for future enhancement
+        // if(indices[i] == context->device.graphics_queue_index)
+        // {
+        //     queue_create_infos[i].queueCount = 2;
+        // }
         queue_create_infos[i].flags = 0;
         queue_create_infos[i].pNext = 0;
         f32 queue_priority = 1.0f;
