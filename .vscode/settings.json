@@ -36,7 +36,8 @@
         "darray.h": "c",
         "windows.h": "c",
         "windowsx.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "vulkan_image.h": "c"
     },
     "todohighlight.isEnable": true,
     "todohighlight.keywords": [

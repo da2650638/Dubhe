@@ -481,3 +481,39 @@ void vulkan_device_destroy(vulkan_context* context)
     context->device.present_queue_index = -1;
     context->device.transfer_queue_index = -1;
 }
+
+b8 vulkan_detect_device_depth_format(vulkan_device* device)
+{
+    const u64 candidate_count = 3;
+    VkFormat candidates[3] = {
+        VK_FORMAT_D32_SFLOAT,
+        VK_FORMAT_D32_SFLOAT_S8_UINT,
+        VK_FORMAT_D24_UNORM_S8_UINT,
+    };
+    u32 flags = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    for(u64 i = 0; i < candidate_count; i++)
+    {
+        VkFormatProperties properties;
+        vkGetPhysicalDeviceFormatProperties(device->physical_device, candidates[i], &properties);
+
+        /*
+         *线性排列（Linear Tiling）意味着图像的像素在内存中按行（row-major order）顺序排列。在这种排列方式下，图像的像素可以像访问常规数组那样直接访问。
+         *这种内存排列方式便于 CPU 直接读取或写入图像数据，因为数据的布局是连续的。然而，这种方式通常不是 GPU 访问图像数据的最有效方法。
+         *linearTilingFeatures这个字段指定了在线性排列下，给定格式支持哪些特性。例如，它可以告诉我们这个格式是否可以被用作纹理采样、渲染目标等。
+         *最优排列（Optimal Tiling）则是为了 GPU 访问而优化的内存排列方式。在这种方式下，图像数据的排列方式对于 GPU 来说更有效，但这种排列方式对于 CPU 来说可能不是直观的。
+         *这个字段指定了在最优排列下，给定格式支持哪些特性。由于这种方式针对 GPU 访问进行了优化，因此通常会提供更好的图形渲染性能。
+         */
+        if((properties.linearTilingFeatures & flags) == flags)
+        {
+            device->depth_format = candidates[i];
+            return TRUE;
+        }
+        else if((properties.optimalTilingFeatures & flags) == flags)
+        {
+            device->depth_format = candidates[i];
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}

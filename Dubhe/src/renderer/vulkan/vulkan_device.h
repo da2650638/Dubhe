@@ -17,3 +17,5 @@ b8 seletc_physical_device(vulkan_context* context);
 b8 vulkan_device_create(vulkan_context* context);
 
 void vulkan_device_destroy(vulkan_context* context);
+
+b8 vulkan_detect_device_depth_format(vulkan_device* device);

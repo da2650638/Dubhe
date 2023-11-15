@@ -47,15 +47,26 @@ typedef struct vulkan_device {
     VkQueue graphics_queue;
     VkQueue present_queue;
     VkQueue transfer_queue;
+
+    VkFormat depth_format;
 }vulkan_device;
+
+typedef struct vulkan_image{
+    VkImage handle;
+    VkDeviceMemory memory;
+    VkImageView view;
+    u32 width;
+    u32 height;
+} vulkan_image;
 
 typedef struct vulkan_swapchain {
     VkSurfaceFormatKHR image_format;
     u8 max_frames_in_flight;
     VkSwapchainKHR handle;
-    u8 image_count;
+    u32 image_count;
     VkImage* images;
     VkImageView* views;
+    vulkan_image depth_attachment;
 } vulkan_swapchain;
 
 // TODO: this structure grow rapidly through out the development
@@ -69,6 +80,14 @@ typedef struct vulkan_context{
     VkDebugUtilsMessengerEXT debug_messenger;
 #endif
     vulkan_device device;
+
+    vulkan_swapchain swapchain;
+    u32 image_index;
+    u32 current_frame;
+
+    b8 recreating_swapchain;
+
+    i32 (*find_memory_index)(u32 type_filter, u32 property_flags);
 } vulkan_context;
 
 #define VK_CHECK(expr) \

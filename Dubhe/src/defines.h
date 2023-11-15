@@ -100,3 +100,5 @@ STATIC_ASSERT(sizeof(b8)==1, "Expected b8 to be 1 bytes.");
 #define DAPI
 #endif
 #endif
+
+#define DCLAMP(value, min, max) (value <= min) ? min : ((value >= max) ? max : value);

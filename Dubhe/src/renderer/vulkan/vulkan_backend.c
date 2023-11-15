@@ -8,6 +8,7 @@
 #include "containers/darray.h"
 #include "vulkan_platform.h"
 #include "vulkan_device.h"
+#include "vulkan_swapchain.h"
 
 static vulkan_context context;
 
@@ -19,6 +20,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
 
 b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* application_name, struct platform_state* plat_state)
 {
+    context.find_memory_index = find_memory_index;
+
     context.allocator = 0;
 
     // Setup VkApplicationInfo
@@ -131,12 +134,21 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     }
     DDEBUG("Vulkan device created...");
 
+    // NOTE: (5)Create swapchain
+    DDEBUG("Creating vulkan swapchain...");
+    vulkan_swapchain_create(&context, context.framebuffer_width, context.framebuffer_height, &context.swapchain);
+    DDEBUG("Vulkan swapchain created...");
+
     DINFO("Vulkan renderer backend initialized successfully.");
     return TRUE;
 }
 
 void vulkan_renderer_backend_shutdown(renderer_backend* backend)
 {
+    // NOTE: (5)Destroy swapchain and its depth image and view
+    DDEBUG("Destroying vulkan swapchain...");
+    vulkan_swapchain_destroy(&context, &context.swapchain);
+
     // Destroy in the opposite order of the creation
     // NOTE: (4)Destroying vulkan device
     DDEBUG("Destroying vulkan device...");
@@ -216,4 +228,22 @@ VKAPI_ATTR VkBool32 vk_debug_callback(
     }
 
     return VK_FALSE;
+}
+
+// FIXME: 不懂这段代码是什么意思，查阅一下。
+i32 find_memory_index(u32 type_filter, u32 property_flags)
+{
+    VkPhysicalDeviceMemoryProperties memory_properties;
+    vkGetPhysicalDeviceMemoryProperties(context.device.physical_device,&memory_properties);
+
+    for(u32 i = 0; i < memory_properties.memoryTypeCount; i++)
+    {
+        if(type_filter & (1 << i) && (memory_properties.memoryTypes[i].propertyFlags & property_flags) == property_flags)
+        {
+            return i;
+        }
+    }
+
+    DWARN("Unable to find suitable memory type!");
+    return -1;
 }
