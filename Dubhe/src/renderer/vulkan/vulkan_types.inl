@@ -59,6 +59,24 @@ typedef struct vulkan_image{
     u32 height;
 } vulkan_image;
 
+typedef enum vulkan_renderpass_state{
+    READY,
+    RECORDING,
+    IN_RENDERPASS,
+    RECORDING_ENDED,
+    SUBMITTED,
+    NOT_ALLOCATED
+} vulkan_renderpass_state;
+
+typedef struct vulkan_renderpass{
+    VkRenderPass handle;
+    f32 x,y,w,h;
+    f32 r,g,b,a;
+    f32 depth;
+    u32 stencil;
+    vulkan_renderpass_state state;
+}vulkan_renderpass;
+
 typedef struct vulkan_swapchain {
     VkSurfaceFormatKHR image_format;
     u8 max_frames_in_flight;
@@ -68,6 +86,21 @@ typedef struct vulkan_swapchain {
     VkImageView* views;
     vulkan_image depth_attachment;
 } vulkan_swapchain;
+
+typedef enum vulkan_command_buffer_state{
+    COMMAND_BUFFER_STATE_READY,
+    COMMAND_BUFFER_STATE_RECORDING,
+    COMMAND_BUFFER_STATE_IN_RENDERPASS,
+    COMMAND_BUFFER_STATE_RECORDING_ENDED,
+    COMMAND_BUFFER_STATE_SUBMITTED,
+    COMMAND_BUFFER_STATE_NOT_ALLOCATED
+} vulkan_command_buffer_state;
+
+typedef struct vulkan_command_buffer{
+    VkCommandBuffer handle;
+
+    vulkan_command_buffer_state state;
+} vulkan_command_buffer;
 
 // TODO: this structure grow rapidly through out the development
 typedef struct vulkan_context{
@@ -84,6 +117,8 @@ typedef struct vulkan_context{
     vulkan_swapchain swapchain;
     u32 image_index;
     u32 current_frame;
+
+    vulkan_renderpass main_renderpass;
 
     b8 recreating_swapchain;
 

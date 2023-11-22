@@ -92,7 +92,7 @@ void internal_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
     // Frames in flight 指的是已经开始渲染但是尚未完全完成所有操作（如绘制，呈现）的帧
     out_vulkan_swapchain->max_frames_in_flight = 2;
 
-    // Choose swap image format
+    // 1.Choose swap image format
     b8 found = FALSE;
     for(u32 i = 0; i < context->device.swapchain_support.format_count; i++)
     {
@@ -111,7 +111,7 @@ void internal_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
         out_vulkan_swapchain->image_format = context->device.swapchain_support.formats[0];
     }
 
-    // Choose present mode
+    // 2.Choose present mode
     VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
     for(u32 i = 0; i < context->device.swapchain_support.present_mode_count; i++)
     {
@@ -130,31 +130,32 @@ void internal_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
                                           &context->device.swapchain_support);
     
     
-    // Swapchain extent
+    // 3.Set the extent to an appropriate size
     /*
      * 这里检查 currentExtent.width 是否不等于 UINT32_MAX。
      * currentExtent 是 VkSurfaceCapabilitiesKHR 结构的一个字段，表示表面的当前外延（即大小）。
      * 如果 currentExtent.width 等于 UINT32_MAX，则表示 Vulkan 表面的大小是由窗口系统决定的，应用程序可以自由设置它。
      * 如果不是 UINT32_MAX，则表示表面大小已经被窗口系统固定，应用程序必须使用这个大小。   
      */
-    if(context->device.swapchain_support.capabilities.currentExtent.width != UINT32_MAX)
+    if(context->device.swapchain_support.capabilities.currentExtent.width != (u32)0xffffffff/*UINT32_MAX*/)
     {
         swapchain_extent = context->device.swapchain_support.capabilities.currentExtent;
     }
 
-    // Clamp to the value allowed by the GPU.
+    // 4.Clamp to the value allowed by the GPU.
     VkExtent2D min = context->device.swapchain_support.capabilities.minImageExtent;
     VkExtent2D max = context->device.swapchain_support.capabilities.maxImageExtent;
     swapchain_extent.width = DCLAMP(swapchain_extent.width, min.width, max.width);
     swapchain_extent.height = DCLAMP(swapchain_extent.height, min.height, max.height);
 
+    // 4.Set the swapchain to triple buffering
     u32 image_count = context->device.swapchain_support.capabilities.minImageCount + 1;
     if(context->device.swapchain_support.capabilities.maxImageCount > 0 && image_count > context->device.swapchain_support.capabilities.maxImageCount)
     {
         image_count = context->device.swapchain_support.capabilities.maxImageCount;
     }
 
-    // Swapchain create info
+    // 5.Set the Swapchain create info
     VkSwapchainCreateInfoKHR swapchain_create_info = {VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
     swapchain_create_info.surface = context->surface;
     swapchain_create_info.minImageCount = image_count;
@@ -165,7 +166,7 @@ void internal_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
     swapchain_create_info.imageArrayLayers = 1;
     swapchain_create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    // Setup the queue family indices
+    // 6.Setup the queue family indices
     if(context->device.graphics_queue_index != context->device.present_queue_index)
     {
         u32 queueFamilyIndices[] = {(u32)context->device.graphics_queue_index,
@@ -187,11 +188,12 @@ void internal_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
     swapchain_create_info.clipped = VK_TRUE;
     swapchain_create_info.oldSwapchain = 0;
 
+    // 7.Create the swapchain
     VK_CHECK(vkCreateSwapchainKHR(context->device.logical_device,&swapchain_create_info,context->allocator,&out_vulkan_swapchain->handle));
 
     context->current_frame = 0;
 
-    // Get images
+    // 8.Get VkImages created by the swapchain
     out_vulkan_swapchain->image_count = 0;
     VK_CHECK(vkGetSwapchainImagesKHR(context->device.logical_device, out_vulkan_swapchain->handle, &out_vulkan_swapchain->image_count, 0));
     if(!out_vulkan_swapchain->images)
@@ -204,7 +206,7 @@ void internal_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
     }
     VK_CHECK(vkGetSwapchainImagesKHR(context->device.logical_device, out_vulkan_swapchain->handle, &out_vulkan_swapchain->image_count, out_vulkan_swapchain->images));
 
-    // Create one view for each image
+    // 9.Create one view for each image
     for(u32 i = 0; i < out_vulkan_swapchain->image_count; i++)
     {
         VkImageViewCreateInfo view_create_info = {VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
@@ -220,14 +222,14 @@ void internal_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
         VK_CHECK(vkCreateImageView(context->device.logical_device, &view_create_info, context->allocator, &out_vulkan_swapchain->views[i]));
     }
 
-    // Depth resources
+    // 10.Set depth format
     if(!vulkan_detect_device_depth_format(&context->device))
     {
         context->device.depth_format = VK_FORMAT_UNDEFINED;
         DFATAL("Failed to find a supported format.");
     }
 
-    // Create depth image and its view
+    // 11.Create depth image and its view
     vulkan_image_create(context, 
                         VK_IMAGE_TYPE_2D,
                         swapchain_extent.width,

@@ -9,6 +9,7 @@
 #include "vulkan_platform.h"
 #include "vulkan_device.h"
 #include "vulkan_swapchain.h"
+#include "vulkan_renderpass.h"
 
 static vulkan_context context;
 
@@ -139,12 +140,24 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     vulkan_swapchain_create(&context, context.framebuffer_width, context.framebuffer_height, &context.swapchain);
     DDEBUG("Vulkan swapchain created...");
 
+    // NOTE: (6)Create Renderpass
+    DDEBUG("Creating vulan renderpass...");
+    vulkan_renderpass_create(&context, &context.main_renderpass,
+    0,0,context.framebuffer_width,context.framebuffer_height,
+    0.0f, 0.0f, 0.2f, 1.0f,
+    1.0f,0);
+    DDEBUG("Vulkan renderpass created...");
+
     DINFO("Vulkan renderer backend initialized successfully.");
     return TRUE;
 }
 
 void vulkan_renderer_backend_shutdown(renderer_backend* backend)
 {
+    // NOTE: (6)Destroy renderpass
+    DDEBUG("Destroying vulkan renderpass...");
+    vulkan_renderpass_destroy(&context, &context.main_renderpass);
+
     // NOTE: (5)Destroy swapchain and its depth image and view
     DDEBUG("Destroying vulkan swapchain...");
     vulkan_swapchain_destroy(&context, &context.swapchain);

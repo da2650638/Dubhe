@@ -37,7 +37,8 @@
         "windows.h": "c",
         "windowsx.h": "c",
         "stdlib.h": "c",
-        "vulkan_image.h": "c"
+        "vulkan_image.h": "c",
+        "vulkan_renderpass.h": "c"
     },
     "todohighlight.isEnable": true,
     "todohighlight.keywords": [

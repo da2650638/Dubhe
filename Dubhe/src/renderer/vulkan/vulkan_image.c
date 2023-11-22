@@ -22,6 +22,8 @@ void vulkan_image_create(
     out_image->width = width;
     out_image->height = height;
 
+    // 创建Image,分配内存，绑定内存，创建VkImageView
+
     // Create info
     VkImageCreateInfo create_info = {VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
     create_info.imageType = VK_IMAGE_TYPE_2D;
@@ -43,6 +45,8 @@ void vulkan_image_create(
     VkMemoryRequirements memory_requirements;
     vkGetImageMemoryRequirements(context->device.logical_device, out_image->handle, &memory_requirements);
 
+    // memory_requirements.memoryTypeBits是一个位掩码，其值为1的位代表对应索引的内存类型是有效的，但不是唯一选择标准，还需要进一步对比。
+    // 例如：memory_requirements.memoryTypeBits值为3，代表其第0位，第1位为1，意味着索引值为0和1的内存类型对于该内存需求是有效的。
     i32 memory_type = context->find_memory_index(memory_requirements.memoryTypeBits, memory_flags);
     if(memory_type == -1)
     {
