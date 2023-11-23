@@ -16,3 +16,5 @@ typedef struct application_config{
 DAPI b8 application_create(struct app* app_instance);
 
 DAPI b8 application_run();
+
+void application_get_framebuffer_size(u32* width, u32* height);

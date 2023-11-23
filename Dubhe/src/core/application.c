@@ -173,6 +173,12 @@ b8 application_run()
     return TRUE;
 }
 
+void application_get_framebuffer_size(u32* width, u32* height) 
+{
+    *width = app_state.width;
+    *height = app_state.height;
+}
+
 b8 application_on_evnet(u16 code, void* sender, void* listener, event_context data)
 {
     switch(code)
