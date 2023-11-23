@@ -48,6 +48,8 @@ typedef struct vulkan_device {
     VkQueue present_queue;
     VkQueue transfer_queue;
 
+    VkCommandPool graphics_command_pool;
+
     VkFormat depth_format;
 }vulkan_device;
 
@@ -93,7 +95,7 @@ typedef enum vulkan_command_buffer_state{
     COMMAND_BUFFER_STATE_IN_RENDERPASS,
     COMMAND_BUFFER_STATE_RECORDING_ENDED,
     COMMAND_BUFFER_STATE_SUBMITTED,
-    COMMAND_BUFFER_STATE_NOT_ALLOCATED
+    COMMAND_BUFFER_STATE_NOT_ALLOCATED  // Initialized state
 } vulkan_command_buffer_state;
 
 typedef struct vulkan_command_buffer{
@@ -115,10 +117,13 @@ typedef struct vulkan_context{
     vulkan_device device;
 
     vulkan_swapchain swapchain;
+    vulkan_renderpass main_renderpass;
+    
+    // darray
+    vulkan_command_buffer* graphics_command_buffers;
+
     u32 image_index;
     u32 current_frame;
-
-    vulkan_renderpass main_renderpass;
 
     b8 recreating_swapchain;
 

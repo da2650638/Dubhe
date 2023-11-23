@@ -10,3 +10,4 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend* backend, f32 delta_time
 b8 vulkan_renderer_backend_end_frame(renderer_backend* backend, f32 delta_time);
 
 i32 find_memory_index(u32 type_filter, u32 property_flags);
+void create_command_buffers(renderer_backend* backend);
