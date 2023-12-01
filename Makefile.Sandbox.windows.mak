@@ -6,7 +6,7 @@ ASSEMBLY := Sandbox
 EXTENSION := .exe
 COMPILER_FLAGS := -g -Wno-missing-braces -fdeclspec #-fPIC
 INCLUDE_FLAGS := -IDubhe\src -ISandbox\src
-LINKER_FLAGS := -g -lDubhe.lib -L$(OBJ_DIR)\Dubhe -L$(BUILD_DIR) #-Wl,-rpath,.
+LINKER_FLAGS := -g -lDubhe.lib -L$(BUILD_DIR) #-L$(OBJ_DIR)\Dubhe -Wl,-rpath,.
 DEFINES := -D_DEBUG -DKIMPORT
 
 # Make does not offer a recursive wildcard function, so here's one:
@@ -27,6 +27,7 @@ scaffold: # create build directory
 .PHONY: link
 link: scaffold $(OBJ_FILES) # link
 	@echo Linking $(ASSEMBLY)...
+	@echo clang $(OBJ_FILES) -o $(BUILD_DIR)/$(ASSEMBLY)$(EXTENSION) $(LINKER_FLAGS)
 	@clang $(OBJ_FILES) -o $(BUILD_DIR)/$(ASSEMBLY)$(EXTENSION) $(LINKER_FLAGS)
 
 .PHONY: compile

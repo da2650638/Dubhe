@@ -39,6 +39,6 @@ clean: # clean build directory
 	if exist $(BUILD_DIR)\$(ASSEMBLY)$(EXTENSION) del $(BUILD_DIR)\$(ASSEMBLY)$(EXTENSION)
 	rmdir /s /q $(OBJ_DIR)\$(ASSEMBLY)
 
-$(OBJ_DIR)/%.c.o: %.c #$<代表第一个依赖 $@代表当前输出目标
+$(OBJ_DIR)/%.c.o: %.c
 	@echo $<...
 	@clang $< $(COMPILER_FLAGS) -c -o $@ $(DEFINES) $(INCLUDE_FLAGS)

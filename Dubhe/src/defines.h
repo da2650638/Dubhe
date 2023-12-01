@@ -102,3 +102,12 @@ STATIC_ASSERT(sizeof(b8)==1, "Expected b8 to be 1 bytes.");
 #endif
 
 #define DCLAMP(value, min, max) (value <= min) ? min : ((value >= max) ? max : value);
+
+// Inlining
+#ifdef _MSC_VER
+#define DINLINE __forceinline
+#define DNOINLINE __declspec(noinline)
+#else 
+#define DINLINE static inline
+#define DNOINLINE
+#endif
