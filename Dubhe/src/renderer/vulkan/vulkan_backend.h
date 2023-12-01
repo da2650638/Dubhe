@@ -12,3 +12,4 @@ b8 vulkan_renderer_backend_end_frame(renderer_backend* backend, f32 delta_time);
 i32 find_memory_index(u32 type_filter, u32 property_flags);
 void create_command_buffers(renderer_backend* backend);
 void regenerate_framebuffers(renderer_backend* backend, vulkan_swapchain* swapchain, vulkan_renderpass* renderpass);
+b8 recreate_swapchain(renderer_backend* backend);

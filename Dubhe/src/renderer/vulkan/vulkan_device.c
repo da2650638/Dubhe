@@ -59,60 +59,53 @@ b8 physical_device_meets_requirements(VkPhysicalDevice physical_device,
     VkSurfaceKHR surface, 
     const VkPhysicalDeviceProperties* properties, 
     const VkPhysicalDeviceFeatures* features, 
-    const vulkan_physical_device_requriements* requirements,
+    const vulkan_physical_device_requirements* requirements,
     vulkan_physical_device_queue_family_info* out_queue_info,
     vulkan_swapchain_support_info* out_swapchain_support)
 {   
-    //
+    // Evaluate device properties to determine if it meets the needs of our applcation.
     out_queue_info->graphics_family_index = -1;
     out_queue_info->present_family_index = -1;
     out_queue_info->compute_family_index = -1;
     out_queue_info->transfer_family_index = -1;
 
-    // Need discrete gpu?
-    if(requirements->discrete_gpu)
-    {
-        if(properties->deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
-        {
-            DINFO("Device is not a discrete GPU, and one discrete gpu is required. Skipping.");
+    // Discrete GPU?
+    if (requirements->discrete_gpu) {
+        if (properties->deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+            DINFO("Device is not a discrete GPU, and one is required. Skipping.");
             return FALSE;
         }
     }
 
     u32 queue_family_count = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(physical_device,
-        &queue_family_count,
-        0);
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, 0);
     VkQueueFamilyProperties queue_families[queue_family_count];
-    vkGetPhysicalDeviceQueueFamilyProperties(physical_device,
-        &queue_family_count,
-        queue_families);
-    // Look at each queue and see what queues it supports.
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, queue_families);
+
+    // Look at each queue and see what queues it supports
     DINFO("Graphics | Present | Compute | Transfer | Name");
     u8 min_transfer_score = 255;
     for(u32 i = 0; i < queue_family_count; i++)
     {
         u8 current_transfer_score = 0;
+
         // Graphics queue?
-        if(queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-        {
+        if (queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             out_queue_info->graphics_family_index = i;
             ++current_transfer_score;
         }
 
         // Compute queue?
-        if(queue_families[i].queueFlags & VK_QUEUE_COMPUTE_BIT)
-        {
+        if (queue_families[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
             out_queue_info->compute_family_index = i;
             ++current_transfer_score;
         }
 
-        // Tranfer queue?
-        if(queue_families[i].queueFlags * VK_QUEUE_TRANSFER_BIT)
-        {
-
-            if(current_transfer_score < min_transfer_score)
-            {
+        // Transfer queue?
+        if (queue_families[i].queueFlags & VK_QUEUE_TRANSFER_BIT) {
+            // Take the index if it is the current lowest. This increases the
+            // liklihood that it is a dedicated transfer queue.
+            if (current_transfer_score <= min_transfer_score) {
                 min_transfer_score = current_transfer_score;
                 out_queue_info->transfer_family_index = i;
             }
@@ -121,8 +114,7 @@ b8 physical_device_meets_requirements(VkPhysicalDevice physical_device,
         // Present queue?
         VkBool32 supports_present = VK_FALSE;
         VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface, &supports_present));
-        if(supports_present == VK_SUCCESS)
-        {
+        if (supports_present) {
             out_queue_info->present_family_index = i;
         }
     }
@@ -134,10 +126,10 @@ b8 physical_device_meets_requirements(VkPhysicalDevice physical_device,
     out_queue_info->transfer_family_index != -1,
     properties->deviceName);
 
-    if((!requirements->graphics || out_queue_info->graphics_family_index != -1) &&
-       (!requirements->present || out_queue_info->present_family_index != -1) &&
-       (!requirements->compute || out_queue_info->compute_family_index != -1) &&
-       (!requirements->transfer || out_queue_info->transfer_family_index != -1))
+    if( (!requirements->graphics || (requirements->graphics && out_queue_info->graphics_family_index != -1)) &&
+        (!requirements->present || (requirements->present && out_queue_info->present_family_index != -1)) &&
+        (!requirements->compute || (requirements->compute && out_queue_info->compute_family_index != -1)) &&
+        (!requirements->transfer || (requirements->transfer && out_queue_info->transfer_family_index != -1)) )
     {
         // 如果找到了我们所需要的队列
         DINFO("Device meets queue requirements.");
@@ -243,7 +235,7 @@ b8 seletc_physical_device(vulkan_context* context)
         vkGetPhysicalDeviceMemoryProperties(physical_devices[i], &memory);
 
         // TODO: make the requirement configurable.
-        vulkan_physical_device_requriements requirements = {};
+        vulkan_physical_device_requirements requirements = {};
         requirements.graphics = TRUE;
         requirements.present = TRUE;
         requirements.transfer = TRUE;
@@ -255,7 +247,13 @@ b8 seletc_physical_device(vulkan_context* context)
         darray_push(requirements.device_extension_names, &VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
         vulkan_physical_device_queue_family_info queue_info = {};
-        b8 result = physical_device_meets_requirements(physical_devices[i], context->surface, &properties, &features, &requirements, &queue_info, &context->device.swapchain_support);
+        b8 result = physical_device_meets_requirements(physical_devices[i], 
+            context->surface, 
+            &properties, 
+            &features, 
+            &requirements, 
+            &queue_info, 
+            &context->device.swapchain_support);
         // Only if this deivce meets requirements
         if(result)
         {
@@ -303,8 +301,8 @@ b8 seletc_physical_device(vulkan_context* context)
             // Memory info
             for(u32 j = 0; j < memory.memoryHeapCount; ++j)
             {
-                f32 memory_size_gib = (((f32)memory.memoryHeaps[i].size) / 1024.0f / 1024.0f / 1024.0f);
-                if(memory.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
+                f32 memory_size_gib = (((f32)memory.memoryHeaps[j].size) / 1024.0f / 1024.0f / 1024.0f);
+                if(memory.memoryHeaps[j].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
                 {
                     DINFO("Local GPU memory: %.2f GiB", memory_size_gib);
                 }

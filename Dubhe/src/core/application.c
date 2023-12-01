@@ -27,6 +27,7 @@ static application_state app_state;
 
 b8 application_on_evnet(u16 code, void* sender, void* listener, event_context data);
 b8 application_on_key(u16 code, void* sender, void* listener, event_context data);
+b8 application_on_resize(u16 code, void* sender, void* listener, event_context data);
 
 b8 application_create(app* app_instance)
 {
@@ -56,6 +57,7 @@ b8 application_create(app* app_instance)
     event_register(EVENT_CODE_APPLICATION_QUIT, 0, application_on_evnet);
     event_register(EVENT_CODE_KEY_PRESSED, 0, application_on_key);
     event_register(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
+    event_register(EVENT_CODE_RESIZED, 0, application_on_resize);
 
     if(!platform_startup(
         &app_state.platform_state, 
@@ -128,6 +130,11 @@ b8 application_run()
                 app_state.is_running = FALSE;
                 break;
             }
+
+            // TODO: refactor packet creation
+            renderer_packet packet;
+            packet.delta_time = delta_time;
+            renderer_draw_frame(&packet);
 
             f64 frame_end_time = platform_get_absolute_time();
             f64 frame_elapsed_time = frame_end_time - frame_start_time;
@@ -236,4 +243,41 @@ b8 application_on_key(u16 code, void* sender, void* listener, event_context data
         }
     }
     return FALSE;   
+}
+
+b8 application_on_resize(u16 code, void* sender, void* listener, event_context data)
+{
+    if(code == EVENT_CODE_RESIZED)
+    {
+        u16 width = data.data.u16[0];
+        u16 height = data.data.u16[1];
+
+        if(width != app_state.width || height != app_state.height)
+        {
+            app_state.width = width;
+            app_state.height = height;
+
+            DDEBUG("Window resize: %i, %i", width, height);
+
+            if(width == 0 || height == 0)
+            {
+                DINFO("Window minimized. Suspending application.");
+                app_state.is_suspended = TRUE;
+                return TRUE;
+            }
+            else
+            {
+                if(app_state.is_suspended)
+                {
+                    DINFO("Window restored, resuming application.");
+                    app_state.is_suspended = FALSE;
+                }
+                app_state.app_instance->on_resize(app_state.app_instance, width, height);
+                renderer_on_resize(width, height);
+            }
+        }
+    }
+
+    // Event purposely not handled to allow other listener to get this.
+    return FALSE;
 }

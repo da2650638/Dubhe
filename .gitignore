@@ -1,5 +1,7 @@
 # Directories
 bin/
+obj/
+output/
 
 # Exclude
 !vendor/bin

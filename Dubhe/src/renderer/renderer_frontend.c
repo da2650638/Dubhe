@@ -39,9 +39,17 @@ void renderer_shutdown()
     dfree(backend, sizeof(renderer_backend), MEMORY_TAG_RENDERER);
 }
 
-void renderer_resize(u16 width, u16 height)
+void renderer_on_resize(u16 width, u16 height)
 {
-    backend->resized(backend, width, height);
+    if(backend)
+    {
+        backend->resized(backend, width, height);
+    }
+    else
+    {
+        DWARN("renderer backend does not exists to accept resize: %i %i", width, height);
+    }
+
 }
 
 b8 renderer_begin_frame(f32 delta_time)

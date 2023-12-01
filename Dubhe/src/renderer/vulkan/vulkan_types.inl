@@ -14,7 +14,7 @@ typedef struct vulkan_swapchain_support_info{
     VkPresentModeKHR* present_modes;
 } vulkan_swapchain_support_info;
 
-typedef struct vulkan_physical_device_requriements{
+typedef struct vulkan_physical_device_requirements{
     b8 graphics;
     b8 present;
     b8 compute;
@@ -23,7 +23,7 @@ typedef struct vulkan_physical_device_requriements{
     const char** device_extension_names;
     b8 sampler_anisotropy;
     b8 discrete_gpu;
-}vulkan_physical_device_requriements;
+}vulkan_physical_device_requirements;
 
 typedef struct vulkan_physical_device_queue_family_info{
     u32 graphics_family_index;
@@ -122,7 +122,10 @@ typedef struct vulkan_fence{
 // TODO: this structure grow rapidly through out the development
 typedef struct vulkan_context{
     u32 framebuffer_width;
-    u32 framebuffer_height;    
+    u32 framebuffer_height;  
+    u64 framebuffer_size_generation;
+    u64 framebuffer_size_last_generation;
+
     VkInstance instance;
     VkAllocationCallbacks* allocator;
     VkSurfaceKHR surface;

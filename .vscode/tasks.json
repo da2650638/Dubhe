@@ -4,7 +4,7 @@
             "type": "shell",
             "label": "Build Dubhe",
             "windows": {
-                "command": "${workspaceFolder}/Dubhe/build.bat"
+                "command": "${workspaceFolder}\\Dubhe\\build.bat"
             },
             "linux": {
                 "command": "${workspaceFolder}/Dubhe/build.sh"
@@ -22,7 +22,7 @@
             "type": "shell",
             "label": "Build Sandbox",
             "windows": {
-                "command": "${workspaceFolder}/Sandbox/build.bat"
+                "command": "${workspaceFolder}\\Sandbox\\build.bat"
             },
             "linux": {
                 "command": "${workspaceFolder}/Sandbox/build.sh"
@@ -39,7 +39,7 @@
             "type": "shell",
             "label": "Build All",
             "windows": {
-                "command": "${workspaceFolder}/build-all.bat",
+                "command": "${workspaceFolder}\\build-all.bat",
             },
             "linux": {
                 "command": "${workspaceFolder}/build-all.sh",
@@ -54,7 +54,21 @@
                 "kind": "build",
                 "isDefault": true
             }
-        }
+        },
+        {
+            "type": "shell",
+            "label": "Clean Everything",
+            "windows": {
+                "command": "${workspaceFolder}\\clean-all.bat",
+            },
+            "linux": {
+                "command": "${workspaceFolder}/clean-all.sh",
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build"
+        },
     ],
     "version": "2.0.0"
 }

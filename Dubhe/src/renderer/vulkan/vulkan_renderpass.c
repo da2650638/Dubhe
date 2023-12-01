@@ -12,6 +12,19 @@ void vulkan_renderpass_create(
     u32 stencil
 )
 {
+    out_renderpass->x = x;
+    out_renderpass->y = y;
+    out_renderpass->w = w;
+    out_renderpass->h = h;
+
+    out_renderpass->r = r;
+    out_renderpass->g = g;
+    out_renderpass->b = b;
+    out_renderpass->a = a;
+
+    out_renderpass->depth = depth;
+    out_renderpass->stencil = stencil;
+
     // 1.Main subpass
     VkSubpassDescription subpass = {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -124,16 +137,18 @@ void vulkan_renderpass_begin(
 {
     VkRenderPassBeginInfo begin_info = {VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
     begin_info.renderPass = renderpass->handle;
+    begin_info.framebuffer = frame_buffer;
     begin_info.renderArea.offset.x = renderpass->x;
     begin_info.renderArea.offset.y = renderpass->y;
     begin_info.renderArea.extent.width = renderpass->w;
     begin_info.renderArea.extent.height = renderpass->h;
 
     VkClearValue clear_values[2];
+    dzero_memory(clear_values, sizeof(VkClearValue) * 2);
     clear_values[0].color.float32[0] = renderpass->r;
-    clear_values[0].color.float32[0] = renderpass->g;
-    clear_values[0].color.float32[0] = renderpass->b;
-    clear_values[0].color.float32[0] = renderpass->a;
+    clear_values[0].color.float32[1] = renderpass->g;
+    clear_values[0].color.float32[2] = renderpass->b;
+    clear_values[0].color.float32[3] = renderpass->a;
     clear_values[1].depthStencil.depth = renderpass->depth;
     clear_values[1].depthStencil.stencil = renderpass->stencil;
 

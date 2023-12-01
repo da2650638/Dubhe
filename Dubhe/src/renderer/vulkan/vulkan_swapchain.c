@@ -65,6 +65,7 @@ void vulkan_swapchain_present(vulkan_context* context,
                               VkSemaphore render_complete_semaphore, 
                               u32 present_image_index)
 {
+    // Return the image to the swapchain for presentation.
     VkPresentInfoKHR present_info = {VK_STRUCTURE_TYPE_PRESENT_INFO_KHR};
     present_info.waitSemaphoreCount = 1;
     present_info.pWaitSemaphores = &render_complete_semaphore;
@@ -74,17 +75,14 @@ void vulkan_swapchain_present(vulkan_context* context,
     present_info.pResults = 0;
 
     VkResult result = vkQueuePresentKHR(present_queue, &present_info);
-
-    if(result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-    {
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        // Swapchain is out of date, suboptimal or a framebuffer resize has occurred. Trigger swapchain recreation.
         vulkan_swapchain_recreate(context, context->framebuffer_width, context->framebuffer_height, swapchain);
-    }
-    else if(result != VK_SUCCESS)
-    {
-        DFATAL("Failed to present swapchain image");
+    } else if (result != VK_SUCCESS) {
+        DFATAL("Failed to present swap chain image!");
     }
 
-    // Increment (and loop) the index
+    // Increment (and loop) the index.
     context->current_frame = (context->current_frame + 1) % swapchain->max_frames_in_flight;
 }
 
@@ -250,6 +248,7 @@ void internal_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
 
 void internal_destroy(vulkan_context* context, vulkan_swapchain* swapchain)
 {
+    vkDeviceWaitIdle(context->device.logical_device);
     vulkan_image_deatroy(context, &swapchain->depth_attachment);
 
     // Only destroy the views, not the images, since those are owned by the swapchain and are thus

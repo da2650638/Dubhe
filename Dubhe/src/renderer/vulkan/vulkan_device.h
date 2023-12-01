@@ -8,7 +8,7 @@ b8 physical_device_meets_requirements(VkPhysicalDevice physical_device,
 VkSurfaceKHR surface, 
 const VkPhysicalDeviceProperties* properties, 
 const VkPhysicalDeviceFeatures* features, 
-const vulkan_physical_device_requriements* requirements,
+const vulkan_physical_device_requirements* requirements,
 vulkan_physical_device_queue_family_info* out_queue_info,
 vulkan_swapchain_support_info* out_swapchain_support);
 
