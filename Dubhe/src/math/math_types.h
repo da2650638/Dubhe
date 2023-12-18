@@ -50,7 +50,8 @@ typedef union vec4_u
 #if defined(DUSE_SIMD)
     alignas(16) __m128 data;
 #endif 
-    alignas(16) f32 elements[4];
+    //alignas(16) f32 elements[4];
+    f32 elements[4];
     union
     {
         struct
@@ -76,3 +77,8 @@ typedef union vec4_u
 } vec4;
 
 typedef vec4 quat;
+
+typedef union mat4_u
+{
+    f32 data[16];
+} mat4;
