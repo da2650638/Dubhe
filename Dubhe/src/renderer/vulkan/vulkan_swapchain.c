@@ -40,7 +40,7 @@ b8 vulkan_swapchain_acquire_next_image_index(vulkan_context* context,
         // 它指示交换链swapchain不再与surface兼容，或者surface已经更改，因此不能再用于渲染。简单来说，它通常意味着交换链需要重新创建。
         // Trigger the swapchain recreation, but then boot out of the render loop.
         vulkan_swapchain_recreate(context, context->framebuffer_width, context->framebuffer_height, swapchain);
-        return FALSE;
+        return false;
     }
     /*
      * 当你得到 VK_SUBOPTIMAL_KHR 时，这意味着交换链仍可以继续工作，但它的表面属性与物理设备的当前需求不完全匹配。
@@ -51,10 +51,10 @@ b8 vulkan_swapchain_acquire_next_image_index(vulkan_context* context,
     else if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
         DFATAL("Failed to acquire swapchain image!");
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 // FIXME: param named graphics_queue not used.
@@ -89,12 +89,9 @@ void vulkan_swapchain_present(vulkan_context* context,
 void internal_create(vulkan_context* context, u32 width, u32 height, vulkan_swapchain* out_vulkan_swapchain)
 {
     VkExtent2D swapchain_extent = {width, height};
-    // NOTE:定义了同时处于渲染流程的最大帧数，也就是最多有2帧在渲染
-    // Frames in flight 指的是已经开始渲染但是尚未完全完成所有操作（如绘制，呈现）的帧
-    out_vulkan_swapchain->max_frames_in_flight = 2;
 
     // 1.Choose swap image format
-    b8 found = FALSE;
+    b8 found = false;
     for(u32 i = 0; i < context->device.swapchain_support.format_count; i++)
     {
         VkSurfaceFormatKHR format = context->device.swapchain_support.formats[i];
@@ -102,7 +99,7 @@ void internal_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
         format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
         {
             out_vulkan_swapchain->image_format = format;
-            found = TRUE;
+            found = true;
             break;
         }
     }
@@ -155,6 +152,9 @@ void internal_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
     {
         image_count = context->device.swapchain_support.capabilities.maxImageCount;
     }
+    // NOTE:定义了同时处于渲染流程的最大帧数，也就是最多有2帧在渲染
+    // Frames in flight 指的是已经开始渲染但是尚未完全完成所有操作（如绘制，呈现）的帧
+    out_vulkan_swapchain->max_frames_in_flight = image_count - 1;
 
     // 5.Set the Swapchain create info
     VkSwapchainCreateInfoKHR swapchain_create_info = {VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
@@ -239,7 +239,7 @@ void internal_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
                         VK_IMAGE_TILING_OPTIMAL,
                         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                        TRUE,
+                        true,
                         VK_IMAGE_ASPECT_DEPTH_BIT,
                         &out_vulkan_swapchain->depth_attachment);
     

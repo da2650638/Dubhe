@@ -20,116 +20,117 @@ typedef struct event_system_state {
     event_code_entry registered_events[MAX_EVENT_CODES];
 } event_system_state;
 
-static b8 is_event_system_initialized = FALSE;
-static event_system_state event_state;
+static event_system_state* state_ptr;
 
-b8 event_initialize()
+void event_system_initialize(u64* memory_requirement, void* state)
 {
-    if(is_event_system_initialized == TRUE)
+    *memory_requirement = sizeof(event_system_state);
+    if (state == 0) 
     {
-        DERROR("Event system has been initialized.");
-        return FALSE;
+        return;
     }
-    is_event_system_initialized = TRUE;
-    dzero_memory(&event_state, sizeof(event_system_state));
-
-    return TRUE;
+    dzero_memory(state, sizeof(state));
+    state_ptr = state;
 }
 
-void event_shutdown()
+void event_system_shutdown()
 {
-    for(u16 i = 0; i < MAX_EVENT_CODES; i++)
+    if(state_ptr)
     {
-        if(event_state.registered_events[i].events != 0)
+        for(u16 i = 0; i < MAX_EVENT_CODES; i++)
         {
-            darray_destroy((void*)(event_state.registered_events[i].events));
-            event_state.registered_events[i].events = 0;
+            if(state_ptr->registered_events[i].events != 0)
+            {
+                darray_destroy((void*)(state_ptr->registered_events[i].events));
+                state_ptr->registered_events[i].events = 0;
+            }
         }
     }
+    state_ptr = 0;
 }
 
 b8 event_register(u16 code, void* listener, PFN_on_event callback)
 {
-    if(is_event_system_initialized == FALSE)
+    if(!state_ptr)
     {
-        return FALSE;
+        return false;
     }
 
-    if(event_state.registered_events[code].events == 0)
+    if(state_ptr->registered_events[code].events == 0)
     {
-        event_state.registered_events[code].events = darray_create(registered_event);
+        state_ptr->registered_events[code].events = darray_create(registered_event);
     }
 
-    u64 registered_count = darray_length(event_state.registered_events[code].events);
+    u64 registered_count = darray_length(state_ptr->registered_events[code].events);
     for(u64 i = 0; i < registered_count; i++)
     {
-        if(event_state.registered_events[code].events[i].listener == listener)
+        if(state_ptr->registered_events[code].events[i].listener == listener)
         {
             DWARN("The listener is already registered.");
-            return FALSE;
+            return false;
         }
     }
     registered_event new_event;
     new_event.callback = callback;
     new_event.listener = listener;
-    darray_push(event_state.registered_events[code].events, new_event);
+    darray_push(state_ptr->registered_events[code].events, new_event);
 
-    return TRUE;
+    return true;
 }
 
 b8 event_unregister(u16 code, void* listener, PFN_on_event callback)
 {
-    if(is_event_system_initialized == FALSE)
+    if(!state_ptr)
     {
-        return FALSE;
+        return false;
     }
 
-    if(event_state.registered_events[code].events == 0)
+    if(state_ptr->registered_events[code].events == 0)
     {
         // TODO: warn
-        return FALSE;
+        return false;
     }
 
-    u64 registered_count = darray_length(event_state.registered_events[code].events);
+    u64 registered_count = darray_length(state_ptr->registered_events[code].events);
     u64 index;
     for(index = 0; index < registered_count; index++)
     {
-        if(event_state.registered_events[code].events[index].listener == listener && 
-           event_state.registered_events[code].events[index].callback == callback)
+        registered_event e = state_ptr->registered_events[code].events[index];
+        if(e.listener == listener && e.callback == callback)
         {
             registered_event event;
-            darray_pop_at(event_state.registered_events[code].events, index, &event);
-            return TRUE;
+            darray_pop_at(state_ptr->registered_events[code].events, index, &event);
+            return true;
         }
     }
 
     // Not Found
-    return FALSE;
+    return false;
 }
 
 b8 event_fire(u16 code, void* sender, event_context data)
 {
-    if(is_event_system_initialized == FALSE)
+    if(!state_ptr)
     {
-        return FALSE;
+        return false;
     }
 
-    if(event_state.registered_events[code].events == 0)
+    if(state_ptr->registered_events[code].events == 0)
     {
         // TODO: warn
-        return FALSE;
+        return false;
     }
-    u64 registered_count = darray_length(event_state.registered_events[code].events);
+    u64 registered_count = darray_length(state_ptr->registered_events[code].events);
     for(u64 i = 0; i < registered_count; i++)
     {
-        registered_event e = event_state.registered_events[code].events[i];
+        registered_event e = state_ptr->registered_events[code].events[i];
         if(e.callback(code, sender, e.listener, data))
         {
             // NOTE: 这个返回基本上不影响事件处理流程
-            return TRUE;
+            return true;
         }
     }
 
     // NOTE: 这个返回基本上不影响事件处理流程
-    return FALSE;
+    return false;
 }

@@ -8,6 +8,7 @@
 
 b8 create_app(app* out_app)
 {
+    out_app->application_state = 0;
     out_app->app_config.name = "Dubhe-Sandbox";
     out_app->app_config.start_pos_x = 100;
     out_app->app_config.start_pos_y = 100;
@@ -21,5 +22,5 @@ b8 create_app(app* out_app)
 
     out_app->state = dallocate(sizeof(app_state), MEMORY_TAG_GAME);
 
-    return TRUE;
+    return true;
 }

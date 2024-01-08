@@ -11,6 +11,6 @@ const char* vulkan_result_string(VkResult result, b8 get_extended);
 
 /**
  * Inticates if the passed result is a success or an error as defined by the Vulkan spec.
- * @returns True if success; otherwise false. Defaults to true for unknown result types.
+ * @returns true if success; otherwise false. Defaults to true for unknown result types.
  */
 b8 vulkan_result_is_success(VkResult result);
