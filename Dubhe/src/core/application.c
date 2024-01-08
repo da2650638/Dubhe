@@ -18,7 +18,6 @@ typedef struct application_state{
     app* app_instance;
     b8 is_running;
     b8 is_suspended;
-    platform_state platform_state;
     i16 width;
     i16 height;
     clock clock;
@@ -36,6 +35,12 @@ typedef struct application_state{
 
     u64 input_system_memory_requirement;
     void* input_system_state;
+
+    u64 platform_system_memory_requirement;
+    void* platform_system_state;
+
+    u64 renderer_system_memory_requirement;
+    void* renderer_system_state;
 }application_state;
 
 static application_state *app_state;
@@ -93,8 +98,12 @@ b8 application_create(app* app_instance)
     event_register(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
     event_register(EVENT_CODE_RESIZED, 0, application_on_resize);
 
-    if(!platform_startup(
-        &app_state->platform_state, 
+    // Platform
+    platform_system_startup(&app_state->platform_system_memory_requirement, 0, 0, 0, 0, 0, 0);
+    app_state->platform_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->platform_system_memory_requirement);
+    if(!platform_system_startup(
+        &app_state->platform_system_memory_requirement,
+        app_state->platform_system_state,
         app_instance->app_config.name, 
         app_instance->app_config.start_pos_x, 
         app_instance->app_config.start_pos_y, 
@@ -105,7 +114,9 @@ b8 application_create(app* app_instance)
     }
 
     // 平台初始化之后，app初始化之前初始化renderer
-    if(!renderer_initialize(app_instance->app_config.name, &app_state->platform_state))
+    renderer_system_initialize(&app_state->renderer_system_memory_requirement, 0, 0);
+    app_state->renderer_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->renderer_system_memory_requirement);
+    if(!renderer_system_initialize(&app_state->renderer_system_memory_requirement, app_state->renderer_system_state, app_instance->app_config.name))
     {
         DFATAL("Failed to initialize renderer. Aborting application.");
         return false;
@@ -139,7 +150,7 @@ b8 application_run()
     // the application is going to continuously be in this function for the rest of its life until the user actually choose to quit  
     while(app_state->is_running)
     {
-        if(!platform_pump_message(&app_state->platform_state))  // Just like GLFW glfwPollEvents(&window);
+        if(!platform_pump_message())  // Just like GLFW glfwPollEvents(&window);
         {
             app_state->is_running = false;
         }
@@ -207,9 +218,9 @@ b8 application_run()
     event_unregister(EVENT_CODE_RESIZED, 0, application_on_resize);
     input_system_shutdown();
 
-    renderer_shutdown();
+    renderer_system_shutdown(app_state->renderer_system_state);
 
-    platform_shutdown(&app_state->platform_state);
+    platform_system_shutdown(app_state->platform_system_state);
 
     memory_system_shutdown(app_state->memory_system_state);
 

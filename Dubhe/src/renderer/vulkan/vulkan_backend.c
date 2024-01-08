@@ -26,7 +26,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
     const VkDebugUtilsMessengerCallbackDataEXT*      pCallbackData,
     void*                                            pUserData);
 
-b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* application_name, struct platform_state* plat_state)
+b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* application_name)
 {
     context.find_memory_index = find_memory_index;
 
@@ -132,7 +132,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     // NOTE: (3)Create surface
     // FIXME: destroy surface after vulkan_device_destroy
     DDEBUG("Creating vulkan surface...");
-    if (!platform_create_vulkan_surface(plat_state, &context)) {
+    if (!platform_create_vulkan_surface(&context)) {
         DERROR("Failed to create platform surface!");
         return false;
     }
