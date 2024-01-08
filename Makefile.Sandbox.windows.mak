@@ -4,10 +4,10 @@ OBJ_DIR := output\obj
 
 ASSEMBLY := Sandbox
 EXTENSION := .exe
-COMPILER_FLAGS := -g -MD -Werror=vla -Wno-missing-braces -fdeclspec #-fPIC
+COMPILER_FLAGS := -g -Wno-missing-braces -fdeclspec #-fPIC
 INCLUDE_FLAGS := -IDubhe\src -ISandbox\src
 LINKER_FLAGS := -g -lDubhe.lib -L$(BUILD_DIR) #-L$(OBJ_DIR)\Dubhe -Wl,-rpath,.
-DEFINES := -D_DEBUG -DDIMPORT
+DEFINES := -D_DEBUG -DKIMPORT
 
 # Make does not offer a recursive wildcard function, so here's one:
 rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))

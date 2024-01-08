@@ -5,7 +5,6 @@
 typedef enum memory_tag {
     MEMORY_TAG_UNKNOWN = 0,
     MEMORY_TAG_ARRAY,
-    MEMORY_TAG_LINEAR_ALLOCATOR,
     MEMORY_TAG_DARRAY,
     MEMORY_TAG_DICT,
     MEMORY_TAG_RING_QUEUE,
@@ -26,8 +25,8 @@ typedef enum memory_tag {
     MEMORY_TAG_MAX_TAGS
 } memory_tag;
 
-DAPI void memory_system_initialize(u64* memory_requirement, void* state);
-DAPI void memory_system_shutdown(void* state);
+DAPI void initialize_memory();
+DAPI void shutdown_memory();
 
 DAPI void* dallocate(u64 size, memory_tag tag);
 
@@ -40,5 +39,3 @@ DAPI void* dcopy_memory(void* dest, const void* source, u64 size);
 DAPI void* dset_memory(void* dest, i32 value, u64 size);
 
 DAPI char* get_memory_usage_str();
-
-DAPI u64 get_memory_alloc_count();

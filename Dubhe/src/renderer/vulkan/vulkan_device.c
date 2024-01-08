@@ -73,13 +73,13 @@ b8 physical_device_meets_requirements(VkPhysicalDevice physical_device,
     if (requirements->discrete_gpu) {
         if (properties->deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
             DINFO("Device is not a discrete GPU, and one is required. Skipping.");
-            return false;
+            return FALSE;
         }
     }
 
     u32 queue_family_count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, 0);
-    VkQueueFamilyProperties queue_families[32];
+    VkQueueFamilyProperties queue_families[queue_family_count];
     vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, queue_families);
 
     // Look at each queue and see what queues it supports
@@ -155,7 +155,7 @@ b8 physical_device_meets_requirements(VkPhysicalDevice physical_device,
                 dfree(out_swapchain_support->present_modes, sizeof(VkPresentModeKHR) * out_swapchain_support->present_mode_count, MEMORY_TAG_RENDERER);
             }
             DINFO("Required swapchain support not present, skipping device.");
-            return false;
+            return FALSE;
         }
 
         // Device extensions.
@@ -178,12 +178,12 @@ b8 physical_device_meets_requirements(VkPhysicalDevice physical_device,
                 u32 required_extension_count = darray_length(requirements->device_extension_names);
                 for(u32 i = 0; i < required_extension_count; ++i)
                 {
-                    b8 found = false;
+                    b8 found = FALSE;
                     for(u32 j = 0; j < available_extension_count; ++j)
                     {
                         if(strings_equal(requirements->device_extension_names[i], available_extensions[j].extensionName))
                         {
-                            found = true;
+                            found = TRUE;
                             break;
                         }
                     }
@@ -191,7 +191,7 @@ b8 physical_device_meets_requirements(VkPhysicalDevice physical_device,
                     if(!found)
                     {
                         dfree(available_extensions, sizeof(VkExtensionProperties) * available_extension_count, MEMORY_TAG_RENDERER);
-                        return false;
+                        return FALSE;
                     }
                 }
                 dfree(available_extensions, sizeof(VkExtensionProperties) * available_extension_count, MEMORY_TAG_RENDERER);
@@ -202,27 +202,26 @@ b8 physical_device_meets_requirements(VkPhysicalDevice physical_device,
         if(requirements->sampler_anisotropy && !features->samplerAnisotropy)
         {
             DINFO("Device does not support samplerAnisotropy, skipping.");
-            return false;
+            return FALSE;
         }
 
         // Device meets all requirements.
-        return true;
+        return TRUE;
     }
 
-    return false;
+    return FALSE;
 }
 
-b8 select_physical_device(vulkan_context* context)
+b8 seletc_physical_device(vulkan_context* context)
 {
     u32 physical_device_count = 0;
     VK_CHECK(vkEnumeratePhysicalDevices(context->instance, &physical_device_count, 0));
     if(physical_device_count == 0)
     {
         DERROR("No devices which support vulkan found.");
-        return false;
+        return FALSE;
     }
-    const u32 max_device_count = 32;
-    VkPhysicalDevice physical_devices[max_device_count];
+    VkPhysicalDevice physical_devices[physical_device_count];
     VK_CHECK(vkEnumeratePhysicalDevices(context->instance, &physical_device_count, physical_devices));
     for(u32 i =0; i < physical_device_count; ++i)
     {
@@ -237,13 +236,13 @@ b8 select_physical_device(vulkan_context* context)
 
         // TODO: make the requirement configurable.
         vulkan_physical_device_requirements requirements = {};
-        requirements.graphics = true;
-        requirements.present = true;
-        requirements.transfer = true;
+        requirements.graphics = TRUE;
+        requirements.present = TRUE;
+        requirements.transfer = TRUE;
         // NOTE: Enable this if compute will be required.
-        // requirements.compute = true;
-        requirements.sampler_anisotropy = true;
-        requirements.discrete_gpu = true;
+        // requirements.compute = TRUE;
+        requirements.sampler_anisotropy = TRUE;
+        requirements.discrete_gpu = TRUE;
         requirements.device_extension_names = darray_create(const char*);
         darray_push(requirements.device_extension_names, &VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
@@ -328,19 +327,19 @@ b8 select_physical_device(vulkan_context* context)
     if(!context->device.physical_device)
     {
         DERROR("No physical devices were found which meet the requirements.");
-        return false;
+        return FALSE;
     }
 
     DINFO("Physical device selected.");
-    return true;
+    return TRUE;
 }
 
 b8 vulkan_device_create(vulkan_context* context)
 {   
-    if(!select_physical_device(context))
+    if(!seletc_physical_device(context))
     {
         DERROR("No physical device selected.");
-        return false;
+        return FALSE;
     }
 
     // Creating logical device
@@ -357,7 +356,7 @@ b8 vulkan_device_create(vulkan_context* context)
     {
         index_count++;
     }
-    u32 indices[32];
+    u32 indices[index_count];
     u8 index = 0;
     indices[index++] = context->device.graphics_queue_index;
     if(!present_shared_graphics_queue)
@@ -369,7 +368,7 @@ b8 vulkan_device_create(vulkan_context* context)
         indices[index++] = context->device.transfer_queue_index;
     }
     
-    VkDeviceQueueCreateInfo queue_create_infos[32];
+    VkDeviceQueueCreateInfo queue_create_infos[index_count];
     for(u32 i = 0; i < index_count; i++)
     {
         VkDeviceQueueCreateInfo temp_create_info = {VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO};
@@ -440,7 +439,7 @@ b8 vulkan_device_create(vulkan_context* context)
     VK_CHECK( vkCreateCommandPool(context->device.logical_device, &pool_create_info, context->allocator, &context->device.graphics_command_pool) );
     DINFO("Graphics command pool created.");
 
-    return true;
+    return TRUE;
 }
 
 void vulkan_device_destroy(vulkan_context* context)
@@ -517,14 +516,14 @@ b8 vulkan_detect_device_depth_format(vulkan_device* device)
         if((properties.linearTilingFeatures & flags) == flags)
         {
             device->depth_format = candidates[i];
-            return true;
+            return TRUE;
         }
         else if((properties.optimalTilingFeatures & flags) == flags)
         {
             device->depth_format = candidates[i];
-            return true;
+            return TRUE;
         }
     }
 
-    return false;
+    return FALSE;
 }

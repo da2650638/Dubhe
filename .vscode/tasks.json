@@ -82,20 +82,6 @@
                 "cwd": "${workspaceFolder}"
             },
             "group": "build"
-        },
-        {
-            "type": "shell",
-            "label": "BUild Unit Tests",
-            "windows":{
-                "command": "${workspaceFolder}\\tests\\build.bat",
-            },
-            "linux": {
-                "command": "${workspaceFolder}/tests/build.sh",
-            },
-            "options": {
-                "cwd": "${workspaceFolder}/tests"
-            },
-            "group": "build"
         }
     ],
     "version": "2.0.0"

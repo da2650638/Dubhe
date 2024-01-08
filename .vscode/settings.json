@@ -44,11 +44,7 @@
         "dmath.h": "c",
         "math_types.h": "c",
         "cmath": "c",
-        "limits": "c",
-        "linear_allocator.h": "c",
-        "test_manager.h": "c",
-        "linear_allocator_tests.h": "c",
-        "renderer_frontend.h": "c"
+        "limits": "c"
     },
     "todohighlight.isEnable": true,
     "todohighlight.keywords": [

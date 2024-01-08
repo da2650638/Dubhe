@@ -13,7 +13,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/output/bin/",
             "environment": [],
-            "console":"integratedTerminal",
+            "console":"newExternalWindow",
         },
         {
             "name": "(Linux) Launch",
@@ -24,28 +24,6 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/output/bin/",
             "environment": [],
-        },
-
-        {
-            "name": "(Windows) Launch Unit Tests",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/output/bin/tests.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/output/bin/",
-            "environment": [],
-            "console":"integratedTerminal",
-        },
-        {
-            "name": "(Linux) Launch Unit Tests",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/output/bin/tests",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/output/bin/",
-            "environment": [],
-        },
+        }
     ]
 }

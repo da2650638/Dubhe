@@ -32,11 +32,11 @@ b8 renderer_backend_create(renderer_backend_type type, struct platform_state* pl
         default:
         {
             DFATAL("Unknown RENDERER_BACKEND_TYPE");
-            return false;
+            return FALSE;
         }
     }
 
-    return true;
+    return TRUE;
 }
 
 void renderer_backend_destroy(renderer_backend* backend)

@@ -21,8 +21,4 @@ REM Sandbox
 make -f "Makefile.Sandbox.windows.mak" all
 IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
 
-REM Tests
-make -f "Makefile.tests.windows.mak" all
-IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
-
 ECHO "All assemblies build successfully"

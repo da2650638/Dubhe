@@ -86,12 +86,12 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     for(u32 i = 0; i < required_validation_layer_count; i++)
     {
         DINFO("Serach for layer: %s......", required_validation_layer_names[i]);
-        b8 found = false;
+        b8 found = FALSE;
         for(u32 j = 0; j < available_layer_count; j++)
         {
             if(strings_equal(available_layer_properties[j].layerName, required_validation_layer_names[i]))
             {
-                found = true;
+                found = TRUE;
                 DINFO("Found.");
                 break;
             }
@@ -100,7 +100,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
         if(!found)
         {
             DFATAL("Required validation layer is missing: %s", required_validation_layer_names[i]);
-            return false;
+            return FALSE;
         }
     }
     DINFO("All required layers are ready.");
@@ -134,7 +134,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     DDEBUG("Creating vulkan surface...");
     if (!platform_create_vulkan_surface(plat_state, &context)) {
         DERROR("Failed to create platform surface!");
-        return false;
+        return FALSE;
     }
     DDEBUG("Vulkan surface created.");
 
@@ -143,7 +143,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     DDEBUG("Creating vulkan device...");
     if (!vulkan_device_create(&context)) {
         DERROR("Failed to create device!");
-        return false;
+        return FALSE;
     }
     DDEBUG("Vulkan device created...");
 
@@ -186,7 +186,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
         // Create the fence in a signaled state, indicating that the first frame has already been "rendered".
         // This will prevent the application from waiting indefinitely for the first frame to render since it
         // cannot be rendered until a frame is "rendered" before it.
-        vulkan_fence_create(&context, true, &context.in_flight_fences[i]);
+        vulkan_fence_create(&context, TRUE, &context.in_flight_fences[i]);
     }
     // In flight fences should not yet exist at this point, so clear the list. These are stored in pointers
     // because the initial state should be 0, and will be 0 when not in use. Acutal fences are not owned
@@ -198,7 +198,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     DDEBUG("Vulkan sync objects created...");
 
     DINFO("Vulkan renderer backend initialized successfully.");
-    return true;
+    return TRUE;
 }
 
 void vulkan_renderer_backend_shutdown(renderer_backend* backend)
@@ -311,11 +311,11 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend* backend, f32 delta_time
         VkResult result = vkDeviceWaitIdle(device->logical_device);
         if(!vulkan_result_is_success(result))
         {
-            DERROR("vulkan_renderer_backend_begin_frame vkDeviceWaitIdle (1) failed: '%s'", vulkan_result_string(result, true));
-            return false;
+            DERROR("vulkan_renderer_backend_begin_frame vkDeviceWaitIdle (1) failed: '%s'", vulkan_result_string(result, TRUE));
+            return FALSE;
         }
         DINFO("Recreating swapchain, booting...");
-        return false;
+        return FALSE;
     }
 
     // Check if the framebuffer has been resized. If so, a new swapchain must be created.
@@ -324,19 +324,19 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend* backend, f32 delta_time
         VkResult result = vkDeviceWaitIdle(device->logical_device);
         if(!vulkan_result_is_success(result))
         {
-            DERROR("vulkan_renderer_backend_begin_frame vkDeviceWaitIdle (2) failed: '%s'", vulkan_result_string(result, true));
-            return false;
+            DERROR("vulkan_renderer_backend_begin_frame vkDeviceWaitIdle (2) failed: '%s'", vulkan_result_string(result, TRUE));
+            return FALSE;
         }
 
         // If the swapchain recreation failed because , for example, the window was minimized.
         // boot out before unsetting the flag
         if(!recreate_swapchain(backend))
         {
-            return false;
+            return FALSE;
         }
 
         DINFO("Resized, booting...");
-        return false;
+        return FALSE;
     }
 
     if(!vulkan_fence_wait(
@@ -345,7 +345,7 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend* backend, f32 delta_time
         (uint64_t)0xffffffffffffffff))
     {
         DWARN("In-flaght fence wait failure.");
-        return false;
+        return FALSE;
     }
 
     if(!vulkan_swapchain_acquire_next_image_index(
@@ -356,12 +356,12 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend* backend, f32 delta_time
         0,
         &context.image_index))
     {
-        return false;
+        return FALSE;
     }
 
     vulkan_command_buffer* command_buffer = &context.graphics_command_buffers[context.image_index];
     vulkan_command_buffer_reset(command_buffer);
-    vulkan_command_buffer_begin(command_buffer, false, false, false);
+    vulkan_command_buffer_begin(command_buffer, FALSE, FALSE, FALSE);
 
     VkViewport viewport;
     viewport.x = 0.0f;
@@ -384,7 +384,7 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend* backend, f32 delta_time
 
     vulkan_renderpass_begin(command_buffer, &context.main_renderpass, context.swapchain.framebuffers[context.image_index].handle);
 
-    return true;
+    return TRUE;
 }
 
 b8 vulkan_renderer_backend_end_frame(renderer_backend* backend, f32 delta_time)
@@ -422,8 +422,8 @@ b8 vulkan_renderer_backend_end_frame(renderer_backend* backend, f32 delta_time)
 
     if(result != VK_SUCCESS)
     {
-        DERROR("vkQueueSubmit failed with result: %s", vulkan_result_string(result, true));
-        return false;
+        DERROR("vkQueueSubmit failed with result: %s", vulkan_result_string(result, TRUE));
+        return FALSE;
     }
 
     vulkan_command_buffer_update_submitted(command_buffer);
@@ -435,7 +435,7 @@ b8 vulkan_renderer_backend_end_frame(renderer_backend* backend, f32 delta_time)
         context.queue_complete_semaphores[context.current_frame],
         context.image_index);
 
-    return true;
+    return TRUE;
 }
 
 VKAPI_ATTR VkBool32 vk_debug_callback(
@@ -511,7 +511,7 @@ void create_command_buffers(renderer_backend* backend)
             vulkan_command_buffer_free(&context, context.device.graphics_command_pool, &context.graphics_command_buffers[i]);
         }
         dzero_memory(&context.graphics_command_buffers[i], sizeof(vulkan_command_buffer));
-        vulkan_command_buffer_allocate(&context, context.device.graphics_command_pool, true, &context.graphics_command_buffers[i]);
+        vulkan_command_buffer_allocate(&context, context.device.graphics_command_pool, TRUE, &context.graphics_command_buffers[i]);
     }
 }
 
@@ -540,16 +540,16 @@ b8 recreate_swapchain(renderer_backend* backend)
     if(context.recreating_swapchain)
     {
         DDEBUG("recreate_swapchain called when already recreating. Booting.");
-        return false;
+        return FALSE;
     }
 
     if(context.framebuffer_width == 0 || context.framebuffer_height == 0)
     {
         DDEBUG("recreate_swapchain called when window is < 1 in a dimension. Booting.");
-        return false;
+        return FALSE;
     }
 
-    context.recreating_swapchain = true;
+    context.recreating_swapchain = TRUE;
 
     vkDeviceWaitIdle(context.device.logical_device);
 
@@ -591,7 +591,7 @@ b8 recreate_swapchain(renderer_backend* backend)
 
     create_command_buffers(backend);
 
-    context.recreating_swapchain = false;
+    context.recreating_swapchain = FALSE;
 
-    return true;
+    return TRUE;
 }

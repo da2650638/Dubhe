@@ -24,7 +24,4 @@ typedef struct app {
 
     // State
     void* state;
-
-    // Application State;
-    void* application_state;
 }app;

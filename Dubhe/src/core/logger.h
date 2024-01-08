@@ -26,16 +26,8 @@ typedef enum log_level {
     LOG_LEVEL_TRACE
 } log_level;
 
-/**
- * @brief Initialize logging system. Call twice: once with state = 0 to get required memory size.
- * then a second time passing allocated memory to state.
- * 
- * @param memory_requirement 
- * @param state 0 if just request memory requirement, other allocated block of memory.
- * @return b8 ture on success, otherwise false.
- */
-b8 initialize_logging(u64* memory_requirement, void* state);
-void shutdown_logging(void* state);
+b8 initialize_logging();
+void shutdown_logging();
 
 DAPI void log_output(log_level level, const char* message, ...);
 
