@@ -57,7 +57,7 @@ DAPI f32 dabs(f32 x);
 /**
  * Indicates if the value is a power of 2. 0 is considered _not_ a power of 2.
  * @param value The value to be interpreted.
- * @returns True if a power of 2, otherwise false.
+ * @returns true if a power of 2, otherwise false.
  */
 DINLINE b8 is_power_of_2(u64 value) 
 {
@@ -257,15 +257,15 @@ DINLINE b8 vec2_compare(vec2 vector_0, vec2 vector_1, f32 tolerance)
 {
     if(vector_0.x - vector_1.x > tolerance)
     {
-        return FALSE;
+        return false;
     }
 
     if(vector_0.y - vector_1.y > tolerance)
     {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 /**
@@ -536,26 +536,26 @@ DINLINE vec3 vec3_cross(vec3 vector_0, vec3 vector_1)
  * @param vector_0 The first vector.
  * @param vector_1 The second vector.
  * @param tolerance The difference tolerance. Typically K_FLOAT_EPSILON or similar.
- * @return True if within tolerance; otherwise false. 
+ * @return true if within tolerance; otherwise false. 
  */
 DINLINE const b8 vec3_compare(vec3 vector_0, vec3 vector_1, f32 tolerance) 
 {
     if (dabs(vector_0.x - vector_1.x) > tolerance) 
     {
-        return FALSE;
+        return false;
     }
 
     if (dabs(vector_0.y - vector_1.y) > tolerance) 
     {
-        return FALSE;
+        return false;
     }
 
     if (dabs(vector_0.z - vector_1.z) > tolerance) 
     {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 /**

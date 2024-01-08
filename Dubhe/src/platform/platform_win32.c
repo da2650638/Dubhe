@@ -62,7 +62,7 @@ b8 platform_startup(
     if(!RegisterClassA(&wc))
     {
         MessageBoxA(0, "Window registration failed", "Error", MB_ICONEXCLAMATION | MB_OK);
-        return FALSE;
+        return false;
     }
 
     // Create window
@@ -112,7 +112,7 @@ b8 platform_startup(
     {
         MessageBoxA(NULL, "Window Creation failed.", "Error", MB_ICONEXCLAMATION | MB_OK);
         DFATAL("Wdinwo Createion Failed!");
-        return FALSE;
+        return false;
     }
     else
     {
@@ -131,7 +131,7 @@ b8 platform_startup(
     clock_frequency = 1.0 / (f64)frequency.QuadPart;
     QueryPerformanceCounter(&start_time);
 
-    return TRUE;
+    return true;
 }
 
 void platform_shutdown(platform_state* state)
@@ -153,7 +153,7 @@ b8 platform_pump_message(platform_state* state)
         DispatchMessage(&message);
     }
 
-    return TRUE;
+    return true;
 }
 
 void* platform_allocate(u64 size, b8 aligned)
@@ -245,11 +245,11 @@ b8 platform_create_vulkan_surface(struct platform_state* plat_state, struct vulk
     if(result != VK_SUCCESS)
     {
         DFATAL("Vulkan surface creation failed.");
-        return FALSE;
+        return false;
     }
 
     context->surface = state->surface;
-    return TRUE;
+    return true;
 }
 
 // void platform_destroy_vulkan_surface(struct platform_state* plat_state, struct vulkan_context* context)
@@ -275,7 +275,7 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
             // Fire an event for the application to quit.
             event_context data = {};
             event_fire(EVENT_CODE_APPLICATION_QUIT, 0, data);
-            return TRUE;
+            return true;
         }
         case WM_DESTROY:
         {
@@ -303,6 +303,40 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
             // // key pressed/released
             b8 pressed = (msg == WM_KEYDOWN) || (msg == WM_SYSKEYDOWN);
             key_code key = (u16)w_param;
+
+            if(w_param == VK_MENU)
+            {
+                if(GetKeyState(VK_RMENU) & 0x8000)
+                {
+                    key = KEY_RALT;
+                }
+                else if(GetKeyState(VK_LMENU) & 0x8000)
+                {
+                    key = KEY_LALT;
+                }
+            }
+            else if(w_param == VK_SHIFT)
+            {
+                if(GetKeyState(VK_RSHIFT) & 0x8000)
+                {
+                    key = KEY_RSHIFT;
+                }
+                else if(GetKeyState(VK_LSHIFT) & 0x8000)
+                {
+                    key = KEY_LSHIFT;
+                }
+            }
+            else if(w_param == VK_CONTROL)
+            {
+                if(GetKeyState(VK_RCONTROL) & 0x8000)
+                {
+                    key = KEY_RCONTROL;
+                }
+                else if(GetKeyState(VK_LCONTROL) & 0x8000)
+                {
+                    key = KEY_LCONTROL;
+                }
+            }
 
             input_process_key(key, pressed);
             break;
@@ -343,4 +377,3 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
 }
 
 #endif  // DPLATFORM_WINDOWS
-

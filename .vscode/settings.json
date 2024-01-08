@@ -44,7 +44,8 @@
         "dmath.h": "c",
         "math_types.h": "c",
         "cmath": "c",
-        "limits": "c"
+        "limits": "c",
+        "linear_allocator.h": "c"
     },
     "todohighlight.isEnable": true,
     "todohighlight.keywords": [

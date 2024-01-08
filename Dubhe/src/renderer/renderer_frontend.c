@@ -19,7 +19,7 @@ b8 renderer_initialize(const char* application_name, struct platform_state* plat
     if(!renderer_backend_create(RENDERER_BACKEND_TYPE_VULKAN, plat_state, backend))
     {
         DFATAL("create renderer_backend instance failed. renderer type: %s", renderer_backend_type_to_string(RENDERER_BACKEND_TYPE_VULKAN));
-        return FALSE;
+        return false;
     }
 
     // 中文注释：
@@ -27,10 +27,10 @@ b8 renderer_initialize(const char* application_name, struct platform_state* plat
     if(!backend->initialize(backend, application_name, plat_state))
     {
         DFATAL("renderer_backend instance %p initialize failed.", backend);
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 void renderer_shutdown()
@@ -73,11 +73,11 @@ b8 renderer_draw_frame(renderer_packet* packet)
         if(!result)
         {
             DERROR("renderer_end_frame failed. Application shutting down...");
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 const char* renderer_backend_type_to_string(renderer_backend_type type)

@@ -2,11 +2,11 @@ DIR := $(subst /,\,${CURDIR})
 BUILD_DIR := output\bin
 OBJ_DIR := output\obj
 
-ASSEMBLY := Sandbox
+ASSEMBLY := tests
 EXTENSION := .exe
 COMPILER_FLAGS := -g -MD -Werror=vla -Wno-missing-braces -fdeclspec #-fPIC
-INCLUDE_FLAGS := -IDubhe\src -ISandbox\src
-LINKER_FLAGS := -g -lDubhe.lib -L$(BUILD_DIR) #-L$(OBJ_DIR)\Dubhe -Wl,-rpath,.
+INCLUDE_FLAGS := -IDubhe\src -Itests\src 
+LINKER_FLAGS := -g -lDubhe.lib -L$(OBJ_DIR)\Dubhe -L$(BUILD_DIR) #-Wl,-rpath,.
 DEFINES := -D_DEBUG -DDIMPORT
 
 # Make does not offer a recursive wildcard function, so here's one:
@@ -14,7 +14,7 @@ rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 
 SRC_FILES := $(call rwildcard,$(ASSEMBLY)/,*.c) # Get all .c files
 DIRECTORIES := \$(ASSEMBLY)\src $(subst $(DIR),,$(shell dir $(ASSEMBLY)\src /S /AD /B | findstr /i src)) # Get all directories under src.
-OBJ_FILES := $(SRC_FILES:%=$(OBJ_DIR)/%.o) # Get all compiled .c.o objects for Sandbox
+OBJ_FILES := $(SRC_FILES:%=$(OBJ_DIR)/%.o) # Get all compiled .c.o objects for tests
 
 all: scaffold compile link
 
@@ -27,7 +27,6 @@ scaffold: # create build directory
 .PHONY: link
 link: scaffold $(OBJ_FILES) # link
 	@echo Linking $(ASSEMBLY)...
-	@echo clang $(OBJ_FILES) -o $(BUILD_DIR)/$(ASSEMBLY)$(EXTENSION) $(LINKER_FLAGS)
 	@clang $(OBJ_FILES) -o $(BUILD_DIR)/$(ASSEMBLY)$(EXTENSION) $(LINKER_FLAGS)
 
 .PHONY: compile
@@ -42,3 +41,5 @@ clean: # clean build directory
 $(OBJ_DIR)/%.c.o: %.c # compile .c to .c.o object
 	@echo   $<...
 	@clang $< $(COMPILER_FLAGS) -c -o $@ $(DEFINES) $(INCLUDE_FLAGS)
+
+-include $(OBJ_FILES:.o=.d)

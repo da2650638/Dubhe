@@ -12,7 +12,7 @@ const vulkan_physical_device_requirements* requirements,
 vulkan_physical_device_queue_family_info* out_queue_info,
 vulkan_swapchain_support_info* out_swapchain_support);
 
-b8 seletc_physical_device(vulkan_context* context);
+b8 select_physical_device(vulkan_context* context);
 
 b8 vulkan_device_create(vulkan_context* context);
 
