@@ -56,9 +56,36 @@ void input_update(f64 delta_time)
 
 void input_process_key(key_code key, b8 pressed)
 {
-    if(state_ptr->keyboard_current.keys[key] != pressed)
+    if(state_ptr && state_ptr->keyboard_current.keys[key] != pressed)
     {
         state_ptr->keyboard_current.keys[key] = pressed;
+
+        // if (key == KEY_LALT) 
+        // {
+        //     DINFO("Left alt %s.", pressed ? "pressed" : "released");
+        // } 
+        // else if (key == KEY_RALT) 
+        // {
+        //     DINFO("Right alt %s.", pressed ? "pressed" : "released");
+        // }
+
+        // if (key == KEY_LCONTROL) 
+        // {
+        //     DINFO("Left ctrl %s.", pressed ? "pressed" : "released");
+        // } 
+        // else if (key == KEY_RCONTROL) 
+        // {
+        //     DINFO("Right ctrl %s.", pressed ? "pressed" : "released");
+        // }
+
+        // if (key == KEY_LSHIFT) 
+        // {
+        //     DINFO("Left shift %s.", pressed ? "pressed" : "released");
+        // } 
+        // else if (key == KEY_RSHIFT) 
+        // {
+        //     DINFO("Right shift %s.", pressed ? "pressed" : "released");
+        // }
 
         event_context data;
         data.data.u16[0] = key;

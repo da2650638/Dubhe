@@ -27,11 +27,21 @@ typedef struct platform_state
     LARGE_INTEGER start_time;
 }platform_state;
 
+// Clock
 static f64 clock_frequency;
+static LARGE_INTEGER start_time;
 
 static platform_state* state_ptr;
 
 LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param);
+
+void clock_setup() 
+{
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
+    clock_frequency = 1.0 / (f64)frequency.QuadPart;
+    QueryPerformanceCounter(&start_time);
+}
 
 b8 platform_system_startup(
     u64* memory_requirement,
@@ -137,8 +147,8 @@ b8 platform_system_startup(
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
     state_ptr->clock_frequency = 1.0 / (f64)frequency.QuadPart;
-    clock_frequency = state_ptr->clock_frequency;
     QueryPerformanceCounter(&state_ptr->start_time);
+    clock_setup();
 
     return true;
 }
@@ -233,6 +243,7 @@ f64 platform_get_absolute_time()
     }
     else
     {
+        clock_setup();
         LARGE_INTEGER now_time;
         QueryPerformanceCounter(&now_time);
         // time in seconds
@@ -319,42 +330,28 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
         case WM_KEYUP:
         case WM_SYSKEYUP:
         {
-            // // key pressed/released
+            // 原来那段代码获取shift/alt/control按键的released/pressed的键位值出现了问题。
+            // key pressed/released
             b8 pressed = (msg == WM_KEYDOWN) || (msg == WM_SYSKEYDOWN);
             key_code key = (u16)w_param;
 
+            // Check for extended scan code
+            b8 is_extended = (HIWORD(l_param) & KF_EXTENDED) == KF_EXTENDED;
+
             if(w_param == VK_MENU)
             {
-                if(GetKeyState(VK_RMENU) & 0x8000)
-                {
-                    key = KEY_RALT;
-                }
-                else if(GetKeyState(VK_LMENU) & 0x8000)
-                {
-                    key = KEY_LALT;
-                }
+                key = is_extended ? KEY_RALT : KEY_LALT;
             }
             else if(w_param == VK_SHIFT)
             {
-                if(GetKeyState(VK_RSHIFT) & 0x8000)
-                {
-                    key = KEY_RSHIFT;
-                }
-                else if(GetKeyState(VK_LSHIFT) & 0x8000)
-                {
-                    key = KEY_LSHIFT;
-                }
+                // Annoyingly, KF_EXTENDED is not set for shift keys.
+                u32 left_shift = MapVirtualKey(VK_LSHIFT, MAPVK_VK_TO_VSC);
+                u32 scancode = ((l_param & (0xFF << 16)) >> 16);
+                key = scancode == left_shift ? KEY_LSHIFT : KEY_RSHIFT;
             }
             else if(w_param == VK_CONTROL)
             {
-                if(GetKeyState(VK_RCONTROL) & 0x8000)
-                {
-                    key = KEY_RCONTROL;
-                }
-                else if(GetKeyState(VK_LCONTROL) & 0x8000)
-                {
-                    key = KEY_LCONTROL;
-                }
+                key = is_extended ? KEY_RCONTROL : KEY_LCONTROL;
             }
 
             input_process_key(key, pressed);
