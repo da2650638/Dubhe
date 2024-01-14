@@ -5,12 +5,13 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
 #include <sys/stat.h>
 
 b8 filesystem_exists(const char* path)
 {
-    struct stat buffer;
-    return stat(path, &buffer) == 0;
+    struct _stat buffer;
+    return _stat(path, &buffer) == 0;
 }
 
 b8 filesystem_open(const char* path, file_modes mode, b8 binary, file_handle* out_handle)
@@ -78,7 +79,7 @@ b8 filesystem_read_line(file_handle* handle, char** line_buf)
     return false;
 }
 
-b8 filesystem_wirte_line(file_handle* handle, const char* text)
+b8 filesystem_write_line(file_handle* handle, const char* text)
 {
     if(handle->handle)
     {
@@ -131,7 +132,7 @@ b8 filesystem_read_all_bytes(file_handle* handle, u8** out_bytes, u64* out_bytes
     return false;
 }
 
-b8 filesystem_wirte(file_handle* handle, u64 data_size, const void* data, u64* out_bytes_written)
+b8 filesystem_write(file_handle* handle, u64 data_size, const void* data, u64* out_bytes_written)
 {
     if (handle->handle) 
     {

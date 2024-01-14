@@ -199,7 +199,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     }
     DDEBUG("Vulkan sync objects created...");
 
-    // TODO: destroy it.
+    // NOTE: (10) create vulkan object shader
     if(!vulkan_object_shader_create(&context, &context.object_shader))
     {
         DERROR("Error loading built-in basic_lighting shader.");
@@ -214,6 +214,10 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
 void vulkan_renderer_backend_shutdown(renderer_backend* backend)
 {
     vkDeviceWaitIdle(context.device.logical_device);
+
+    // NOTE: (10)Destroy vulkan object shader
+    DDEBUG("Destroying builtin object shader...");
+    vulkan_object_shader_destroy(&context, &context.object_shader);
 
     // NOTE: (9)Destroy Sync objects
     DDEBUG("Destroying vulkan sync objects");

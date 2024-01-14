@@ -57,7 +57,7 @@ DAPI b8 filesystem_read_line(file_handle* handle, char** line_buf);
  * @param text The text to be written.
  * @return True if successful; otherwise false.
  */
-DAPI b8 filesystem_wirte_line(file_handle* handle, const char* text);
+DAPI b8 filesystem_write_line(file_handle* handle, const char* text);
 
 /**
  * @brief Reads up to data_size bytes of data into out_bytes_read.
@@ -89,4 +89,4 @@ DAPI b8 filesystem_read_all_bytes(file_handle* handle, u8** out_bytes, u64* out_
  * @param out_bytes_written A pointer to a number which will be populated with the number of bytes actually written to the file.
  * @return True if successful; otherwise false. 
  */
-DAPI b8 filesystem_wirte(file_handle* handle, u64 data_size, const void* data, u64* out_bytes_written);
+DAPI b8 filesystem_write(file_handle* handle, u64 data_size, const void* data, u64* out_bytes_written);

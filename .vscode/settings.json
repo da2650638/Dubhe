@@ -50,7 +50,10 @@
         "types.h": "c",
         "vulkan_shader_utils.h": "c",
         "vulkan_utils.h": "c",
-        "vulkan_object_shader.h": "c"
+        "vulkan_object_shader.h": "c",
+        "stdarg.h": "c",
+        "filesystem.h": "c",
+        "vulkan_pipeline.h": "c"
     },
     "todohighlight.isEnable": true,
     "todohighlight.keywords": [
