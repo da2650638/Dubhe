@@ -45,7 +45,12 @@
         "math_types.h": "c",
         "cmath": "c",
         "limits": "c",
-        "linear_allocator.h": "c"
+        "linear_allocator.h": "c",
+        "stat.h": "c",
+        "types.h": "c",
+        "vulkan_shader_utils.h": "c",
+        "vulkan_utils.h": "c",
+        "vulkan_object_shader.h": "c"
     },
     "todohighlight.isEnable": true,
     "todohighlight.keywords": [

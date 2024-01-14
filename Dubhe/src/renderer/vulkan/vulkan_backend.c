@@ -15,6 +15,7 @@
 #include "vulkan_framebuffer.h"
 #include "vulkan_fence.h"
 #include "vulkan_utils.h"
+#include "shaders/vulkan_object_shader.h"
 
 static vulkan_context context;
 static u32 cached_framebuffer_width = 0;
@@ -192,10 +193,19 @@ b8 vulkan_renderer_backend_initialize(renderer_backend* backend, const char* app
     // because the initial state should be 0, and will be 0 when not in use. Acutal fences are not owned
     // by this list.
     context.images_in_flight = darray_reserve(vulkan_fence, context.swapchain.image_count);
-    for (u32 i = 0; i < context.swapchain.image_count; ++i) {
+    for (u32 i = 0; i < context.swapchain.image_count; ++i) 
+    {
         context.images_in_flight[i] = 0;
     }
     DDEBUG("Vulkan sync objects created...");
+
+    // TODO: destroy it.
+    if(!vulkan_object_shader_create(&context, &context.object_shader))
+    {
+        DERROR("Error loading built-in basic_lighting shader.");
+        return false;
+    }
+    DDEBUG("Vulkan object shader created(temporary)...");
 
     DINFO("Vulkan renderer backend initialized successfully.");
     return true;
