@@ -53,7 +53,9 @@
         "vulkan_object_shader.h": "c",
         "stdarg.h": "c",
         "filesystem.h": "c",
-        "vulkan_pipeline.h": "c"
+        "vulkan_pipeline.h": "c",
+        "vulkan_buffer.h": "c",
+        "vulkan_command_buffer.h": "c"
     },
     "todohighlight.isEnable": true,
     "todohighlight.keywords": [

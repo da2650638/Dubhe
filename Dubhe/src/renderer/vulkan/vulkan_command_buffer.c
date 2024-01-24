@@ -76,7 +76,7 @@ void vulkan_command_buffer_reset(vulkan_command_buffer* command_buffer)
     command_buffer->state = COMMAND_BUFFER_STATE_READY;
 }
 
-void vulkan_command_buffer_allocate_and_begin(
+void vulkan_command_buffer_allocate_and_begin_single_use(
     vulkan_context* context,
     VkCommandPool pool,
     vulkan_command_buffer* out_command_buffer

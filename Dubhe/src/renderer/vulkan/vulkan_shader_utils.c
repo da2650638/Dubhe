@@ -5,6 +5,17 @@
 #include "core/logger.h"
 #include "platform/filesystem.h"
 
+/**
+ * @brief Create a shader module object(vulkan_shader_stage)
+ * 
+ * @param context 
+ * @param name 
+ * @param type_str 
+ * @param shader_stage_flag 
+ * @param stage_index 
+ * @param shader_stages 
+ * @return b8 
+ */
 b8 create_shader_module(
     vulkan_context* context, 
     const char* name, 
