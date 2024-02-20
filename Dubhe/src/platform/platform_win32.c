@@ -72,7 +72,7 @@ b8 platform_system_startup(
     wc.hIcon = icon;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);       
     wc.hbrBackground = NULL;                        // Transparent
-    wc.lpszClassName = "Dubhe_window_class";
+    wc.lpszClassName = "dengine";
 
     if(!RegisterClassA(&wc))
     {
@@ -111,7 +111,7 @@ b8 platform_system_startup(
     window_height += border_rect.bottom - border_rect.top;
 
     HWND handle = CreateWindowExA(window_ex_style, 
-                                "Dubhe_window_class", 
+                                "dengine", 
                                 application_name,
                                 window_style, 
                                 window_x, 

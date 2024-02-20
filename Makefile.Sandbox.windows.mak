@@ -4,9 +4,9 @@ OBJ_DIR := output\obj
 
 ASSEMBLY := Sandbox
 EXTENSION := .exe
-COMPILER_FLAGS := -g -MD -Werror=vla -Wno-missing-braces -fdeclspec #-fPIC
+COMPILER_FLAGS := -g -MD -Wno-vla -Wno-missing-braces -fdeclspec #-fPIC -Werror=vla
 INCLUDE_FLAGS := -IDubhe\src -ISandbox\src
-LINKER_FLAGS := -g -lDubhe.lib -L$(BUILD_DIR) #-L$(OBJ_DIR)\Dubhe -Wl,-rpath,.
+LINKER_FLAGS := -g -lDubhe -L$(BUILD_DIR) #-L$(OBJ_DIR)\Dubhe -Wl,-rpath,.
 DEFINES := -D_DEBUG -DDIMPORT
 
 # Make does not offer a recursive wildcard function, so here's one:
